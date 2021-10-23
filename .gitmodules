@@ -1,0 +1,3 @@
+[submodule "libs/kiwi"]
+	path = libs/kiwi
+	url = git@github.com:bab2min/Kiwi.git
