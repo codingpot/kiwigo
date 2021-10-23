@@ -10,11 +10,9 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash \
-    && apt-get -y install --no-install-recommends cmake git-lfs \
+    && apt-get -y install --no-install-recommends cmake \
     && git clone https://github.com/bab2min/Kiwi.git \
     && cd Kiwi \
-    && git lfs pull \
     && git submodule sync \
     && git submodule update --init --recursive \
     && mkdir build \
@@ -23,8 +21,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && make && make install \
     && ldconfig \
     && cd ../.. && rm -rf Kiwi \
-    && apt-get --purge -y remove cmake git-lfs \
-    && apt autoremove \
+    && apt-get --purge -y remove cmake \
+    && apt autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
 
