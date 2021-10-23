@@ -1,8 +1,8 @@
 package kiwi
 
 /*
-#cgo LDFLAGS: -L libs/kiwi/build -l kiwi
-#include "libs/kiwi/include/kiwi/capi.h"
+#cgo LDFLAGS: -l kiwi
+#include <kiwi/capi.h>
 */
 import "C"
 
