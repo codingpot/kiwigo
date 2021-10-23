@@ -11,7 +11,7 @@ func TestKiwiVersion(t *testing.T) {
 }
 
 func TestAnalyze(t *testing.T) {
-	kiwi := New("./libs/kiwi/ModelGenerator", 1, 0)
-	res := kiwi.Analyze("Hello World", 1, 0)
-	assert.NotEqual(t, res.Score, 0)
+	kiwi := New("./libs/kiwi/ModelGenerator", 1, KIWI_BUILD_DEFAULT)
+	res := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+	assert.NotEqual(t, 0, res.Score)
 }
