@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if [ 'uname' == "Linux" ]; then
-  export OS="lnx"
-elif [ 'uname' == "Darwin" ]; then
-  export OS="mac"
-elif [ 'uname' == "Windows" ]; then
-  export OS="win"
+if [ "$(uname)" == "Linux" ]; then
+  export OS='lnx'
+elif [ "$(uname)" == "Darwin" ]; then
+  export OS='mac'
+elif [ "$(uname)" == "Windows" ]; then
+  export OS='win'
 fi
 
 echo "set OS env to ${OS}"
