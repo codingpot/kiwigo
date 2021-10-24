@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if uname -s == "Linux"; then
-  OS="lnx";
-  elif uname -s == "Darwin"; then
-  OS="mac";
-  elif uname -s == "Windows"; then
-  OS="win";
+if [ 'uname' == "Linux" ]; then
+  OS="lnx"
+  elif [ 'uname' == "Darwin" ]; then
+  OS="mac"
+  elif [ 'uname' == "Windows" ]; then
+  OS="win"
 fi
 
 wget -O kiwi.tgz https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_$(OS)_x86_64_v0.10.1.tgz &&
