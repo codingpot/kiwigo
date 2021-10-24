@@ -20,13 +20,6 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ../
 make
-```
-
-### make install
-
-You need to run script below after `make` command.
-
-```bash 
 make install
 ldconfig
 ```
