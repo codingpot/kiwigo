@@ -3,7 +3,9 @@
 if uname -s == "Linux"; then
   OS="lnx";
   elif uname -s == "Darwin"; then
-  OS="mac"
+  OS="mac";
+  elif uname -s == "Windows"; then
+  OS="win";
 fi
 
 wget -O kiwi.tgz https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_$(OS)_x86_64_v0.10.1.tgz &&
