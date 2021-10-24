@@ -12,6 +12,7 @@ jobs:
           - '1.17'
         os:
           - ubuntu-latest
+          - macos-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go ${{ matrix.go-version }}
