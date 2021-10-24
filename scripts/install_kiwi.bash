@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+uname
+
 if [ 'uname' == "Linux" ]; then
   OS="lnx"
   elif [ 'uname' == "Darwin" ]; then
