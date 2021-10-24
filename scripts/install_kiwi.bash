@@ -13,7 +13,7 @@ echo "set OS env to ${OS}"
 wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_${OS}_x86_64_v0.10.1.tgz" &&
   tar xzvf kiwi.tgz &&
   sudo mv build/libkiwi* /usr/local/lib/ &&
-  [[ "$(uname)" == "Linux" ]] && sudo ldconfig || echo 'skip'
+  [[ "$(uname)" == "Linux" ]] && sudo ldconfig || echo 'skip' &&
   rm -rf kiwi.tgz build &&
   wget -O source.tgz https://github.com/bab2min/Kiwi/archive/refs/tags/v0.10.1.tar.gz &&
   tar xzvf source.tgz &&
