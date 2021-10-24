@@ -34,13 +34,6 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "echo \"eval '$(starship init zsh)'\" >> ~/.zshrc",
 
-  "containerEnv": {
-    "LD_LIBRARY_PATH": "libs/kiwi/build"
-  },
-
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "vscode",
-	"features": {
-		"git-lfs": "latest"
-	}
+	"remoteUser": "vscode"
 }
