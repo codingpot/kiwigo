@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-uname
-
 if [ 'uname' == "Linux" ]; then
   OS="lnx"
   elif [ 'uname' == "Darwin" ]; then
@@ -9,6 +7,8 @@ if [ 'uname' == "Linux" ]; then
   elif [ 'uname' == "Windows" ]; then
   OS="win"
 fi
+
+echo $OS
 
 wget -O kiwi.tgz https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_${OS}_x86_64_v0.10.1.tgz &&
   tar xzvf kiwi.tgz &&
