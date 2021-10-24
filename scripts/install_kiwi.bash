@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-wget -O kiwi.tgz https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_lnx_x86_64_v0.10.1.tgz &&
+if uname -s == "Linux"; then
+  OS="lnx";
+  elif uname -s == "Darwin"; then
+  OS="mac"
+fi
+
+wget -O kiwi.tgz https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_$(OS)_x86_64_v0.10.1.tgz &&
   tar xzvf kiwi.tgz &&
   sudo mv build/libkiwi* /usr/local/lib/ &&
   sudo ldconfig &&
