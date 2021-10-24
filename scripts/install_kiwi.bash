@@ -2,15 +2,15 @@
 
 if [ 'uname' == "Linux" ]; then
   OS="lnx"
-  elif [ 'uname' == "Darwin" ]; then
+elif [ 'uname' == "Darwin" ]; then
   OS="mac"
-  elif [ 'uname' == "Windows" ]; then
+elif [ 'uname' == "Windows" ]; then
   OS="win"
 fi
 
-echo $OS
+echo "set OS env to ${OS}"
 
-wget -O kiwi.tgz https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_${OS}_x86_64_v0.10.1.tgz &&
+wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_${OS}_x86_64_v0.10.1.tgz" &&
   tar xzvf kiwi.tgz &&
   sudo mv build/libkiwi* /usr/local/lib/ &&
   sudo ldconfig &&
