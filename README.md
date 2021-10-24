@@ -1,5 +1,7 @@
 # kiwigo
 
+[![CI](https://github.com/codingpot/kiwigo/actions/workflows/ci.yaml/badge.svg)](https://github.com/codingpot/kiwigo/actions/workflows/ci.yaml)
+
 https://github.com/bab2min/Kiwi for go
 
 ## Dependencies
