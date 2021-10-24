@@ -10,4 +10,5 @@ ModelGenerator/default.dict:
 
 .PHONY: clean
 clean:
+	rm -rf ./libs
 	rm -rf ./ModelGenerator
