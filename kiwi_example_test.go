@@ -2,6 +2,7 @@ package kiwi_test
 
 import (
 	"fmt"
+
 	kiwi "github.com/codingpot/kiwigo"
 )
 
@@ -9,7 +10,10 @@ func Example() {
 	k := kiwi.New("./ModelGenerator", 1 /*=numThread*/, kiwi.KIWI_BUILD_DEFAULT /*=options*/)
 	defer k.Close()
 
-	results := k.Analyze("안녕하세요 코딩냄비입니다. 부글부글.", 1 /*=topN*/, kiwi.KIWI_MATCH_ALL)
+	results, err := k.Analyze("안녕하세요 코딩냄비입니다. 부글부글.", 1 /*=topN*/, kiwi.KIWI_MATCH_ALL)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	fmt.Println(results)
 
 	// Output:
