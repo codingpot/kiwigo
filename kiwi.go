@@ -1,3 +1,4 @@
+// Package kiwi is a Go binding for Kiwi (https://github.com/bab2min/Kiwi) project.
 package kiwi
 
 /*
