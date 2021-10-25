@@ -268,7 +268,7 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 		tokens := make([]TokenInfo, int(C.kiwi_res_word_num(kiwiResH, C.int(i))))
 
 		for j := 0; j < len(tokens); j++ {
-			POS, err := ParsePOSType(C.GoString(C.kiwi_res_tag(kiwiResH, C.int(i), C.int(j))))
+			pos, err := ParsePOSType(C.GoString(C.kiwi_res_tag(kiwiResH, C.int(i), C.int(j))))
 			if err != nil {
 				return nil, err
 			}
