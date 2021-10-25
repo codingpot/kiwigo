@@ -11,3 +11,8 @@ ModelGenerator/default.dict:
 clean:
 	rm -f model.tgz
 	rm -rf ./ModelGenerator
+
+.PHONY: format
+format:
+	# go install mvdan.cc/gofumpt@latest
+	gofumpt -l -w .
