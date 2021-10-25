@@ -1,6 +1,7 @@
 # kiwigo
 
 [![CI](https://github.com/codingpot/kiwigo/actions/workflows/ci.yaml/badge.svg)](https://github.com/codingpot/kiwigo/actions/workflows/ci.yaml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/codingpot/kiwigo.svg)](https://pkg.go.dev/github.com/codingpot/kiwigo)
 
 https://github.com/bab2min/Kiwi for go
 
