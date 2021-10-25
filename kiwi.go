@@ -274,7 +274,7 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 			}
 			tokens[j] = TokenInfo{
 				Form:     C.GoString(C.kiwi_res_form(kiwiResH, C.int(i), C.int(j))),
-				Tag:      POS,
+				Tag:      pos,
 				Position: int(C.kiwi_res_position(kiwiResH, C.int(i), C.int(j))),
 			}
 		}
