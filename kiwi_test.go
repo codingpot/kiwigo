@@ -74,6 +74,9 @@ func TestAddWordFail(t *testing.T) {
 func TestAddWord(t *testing.T) {
 	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
 	add := kb.AddWord("아버지가", "NNG", 0)
+
+	assert.Equal(t, 0, add)
+
 	kiwi := kb.Build()
 	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
 
@@ -115,7 +118,6 @@ func TestAddWord(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, 0, add)
 	assert.Equal(t, expected, res)
 	assert.Equal(t, 0, kiwi.Close())
 	assert.Equal(t, 0, kb.Close())
@@ -124,7 +126,13 @@ func TestAddWord(t *testing.T) {
 func TestLoadDict(t *testing.T) {
 	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
 	add := kb.LoadDict("example/user_dict.txt")
+
+	assert.Equal(t, 0, add)
+
 	err := KiwiError()
+
+	assert.Equal(t, "", err)
+
 	kiwi := kb.Build()
 	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
 
@@ -171,8 +179,6 @@ func TestLoadDict(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, 0, add)
-	assert.Equal(t, "", err)
 	assert.Equal(t, expected, res)
 	assert.Equal(t, 0, kiwi.Close())
 	assert.Equal(t, 0, kb.Close())
