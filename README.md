@@ -14,7 +14,7 @@ check out how to install Kiwi [here](https://github.com/bab2min/Kiwi#%EC%84%A4%E
 ### Example script (install using the helper script)
 
 ```bash
-bash ./scripts/install_kiwi.bash
+make install-kiwi
 ```
 
 ### Example script (install from source)
