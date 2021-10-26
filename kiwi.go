@@ -135,8 +135,8 @@ func (k *KiwiBuilder) Close() int {
 }
 
 // AddWord
-func (k *KiwiBuilder) AddWord(word string, pos string, score float32) int {
-	return int(C.kiwi_builder_add_word(k.handler, C.CString(word), C.CString(pos), C.float(score)))
+func (k *KiwiBuilder) AddWord(word string, pos POSType, score float32) int {
+	return int(C.kiwi_builder_add_word(k.handler, C.CString(word), C.CString(string(pos)), C.float(score)))
 }
 
 // LoadDict
@@ -144,7 +144,7 @@ func (k *KiwiBuilder) LoadDict(dictPath string) int {
 	return int(C.kiwi_builder_load_dict(k.handler, C.CString(dictPath)))
 }
 
-// BUild
+// Build
 func (k *KiwiBuilder) Build() *Kiwi {
 	return &Kiwi{
 		handler: C.kiwi_builder_build(k.handler),

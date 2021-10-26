@@ -64,9 +64,6 @@ func TestAnalyze(t *testing.T) {
 func TestAddWordFail(t *testing.T) {
 	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
 	add := kb.AddWord("아버지가", "SKO", 0)
-	// 실행 결과가 -1 이거나 에러가 나야한다고 생각하고 있었는데,
-	// 실행은 잘 됨.
-	// 이후 동작에 반영이 안됨.
 	assert.Equal(t, 0, add)
 	assert.Equal(t, 0, kb.Close())
 }
