@@ -110,8 +110,8 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 
 // Close frees the resource allocated for Kiwi and returns the exit status.
 // This must be called after New.
-//
 // Returns 0 if successful.
+// Safe to call multiple times.
 func (k *Kiwi) Close() int {
 	if k.handler != nil {
 		out := int(C.kiwi_close(k.handler))
@@ -155,8 +155,8 @@ func (kb *KiwiBuilder) Build() *Kiwi {
 
 // Close frees the resource allocated for KiwiBuilder and returns the exit status.
 // This must be called after New but not need to called after Build.
-//
 // Returns 0 if successful.
+// Safe to call multiple times.
 func (kb *KiwiBuilder) Close() int {
 	if kb.handler != nil {
 		out := int(C.kiwi_builder_close(kb.handler))
