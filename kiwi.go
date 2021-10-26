@@ -52,16 +52,17 @@ type TokenInfo struct {
 
 	// Tag represents a type of this token (e.g. VV, NNG, ...).
 	// TODO: convert string to enum
-	Tag      string
+	Tag string
 
 	// Form is the actual string of this token.
-	Form     string
+	Form string
 }
 
 // TokenResult is a result for Analyze.
 type TokenResult struct {
-	Tokens []TokenInfo
-	Score  float32
+	Tokens  []TokenInfo
+	WordNum int
+	Score   float32
 }
 
 // Analyze returns the result of the analysis.
@@ -85,8 +86,9 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) []TokenResu
 		}
 
 		res[i] = TokenResult{
-			Tokens: tokens,
-			Score:  float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
+			Tokens:  tokens,
+			WordNum: int(C.kiwi_res_word_num(kiwiResH, C.int(i))),
+			Score:   float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
 		}
 	}
 
@@ -99,4 +101,9 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) []TokenResu
 // Returns 0 if successful.
 func (k *Kiwi) Close() int {
 	return int(C.kiwi_close(k.handler))
+}
+
+// Close
+func (k *Kiwi) Error() string {
+	return C.GoString(C.kiwi_error(k.handler))
 }
