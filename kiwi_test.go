@@ -10,15 +10,6 @@ func TestKiwiVersion(t *testing.T) {
 	assert.Equal(t, KiwiVersion(), "0.10.2")
 }
 
-func TestParsePOSType(t *testing.T) {
-	res, _ := ParsePOSType("NNG")
-	assert.Equal(t, res, POS_NNG)
-
-	if _, err := ParsePOSType("NNK"); err != nil {
-		assert.EqualError(t, err, "POS type parse err. input type: NNK")
-	}
-}
-
 func TestAnalyze(t *testing.T) {
 	kiwi := New("./ModelGenerator", 1, KIWI_BUILD_DEFAULT)
 	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
