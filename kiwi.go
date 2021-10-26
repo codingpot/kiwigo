@@ -34,6 +34,17 @@ func KiwiVersion() string {
 	return C.GoString(C.kiwi_version())
 }
 
+// KiwiError returns the Error messages.
+func KiwiError() string {
+	return C.GoString(C.kiwi_error())
+}
+
+// KiwiClearError clear error.
+func KiwiClearError() {
+	C.kiwi_clear_error()
+	return
+}
+
 // Kiwi is a wrapper for the kiwi C library.
 type Kiwi struct {
 	handler C.kiwi_h
@@ -62,9 +73,9 @@ type TokenInfo struct {
 
 // TokenResult is a result for Analyze.
 type TokenResult struct {
-	Tokens  []TokenInfo
-	WordNum int
-	Score   float32
+	Tokens []TokenInfo
+	// WordNum int
+	Score float32
 }
 
 // Analyze returns the result of the analysis.
@@ -88,9 +99,9 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) []TokenResu
 		}
 
 		res[i] = TokenResult{
-			Tokens:  tokens,
-			WordNum: int(C.kiwi_res_word_num(kiwiResH, C.int(i))),
-			Score:   float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
+			Tokens: tokens,
+			// WordNum: int(C.kiwi_res_word_num(kiwiResH, C.int(i))),
+			Score: float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
 		}
 	}
 
@@ -105,3 +116,31 @@ func (k *Kiwi) Close() int {
 	return int(C.kiwi_close(k.handler))
 }
 
+// KiwiBuilder is a wrapper for the kiwi C library.
+type KiwiBuilder struct {
+	handler C.kiwi_builder_h
+}
+
+// NewBuilder returns a new KiwiBuilder instance.
+// Don't forget to call Close after this.
+func NewBuilder(modelPath string, numThread int, options BuildOption) *KiwiBuilder {
+	return &KiwiBuilder{
+		handler: C.kiwi_builder_init(C.CString(modelPath), C.int(numThread), C.int(options)),
+	}
+}
+
+// Close
+func (k *KiwiBuilder) Close() int {
+	return int(C.kiwi_builder_close(k.handler))
+}
+
+// AddWord
+func (k *KiwiBuilder) AddWord(word string, pos string, score float32) int {
+	return int(C.kiwi_builder_add_word(k.handler, C.CString(word), C.CString(pos), C.float(score)))
+}
+
+func (k *KiwiBuilder) Build() *Kiwi {
+	return &Kiwi{
+		handler: C.kiwi_builder_build(k.handler),
+	}
+}
