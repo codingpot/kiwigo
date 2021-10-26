@@ -63,7 +63,7 @@ type TokenInfo struct {
 // TokenResult is a result for Analyze.
 type TokenResult struct {
 	Tokens  []TokenInfo
-	WordNum int
+// 	WordNum int
 	Score   float32
 }
 
@@ -89,7 +89,7 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) []TokenResu
 
 		res[i] = TokenResult{
 			Tokens:  tokens,
-			WordNum: int(C.kiwi_res_word_num(kiwiResH, C.int(i))),
+// 			WordNum: int(C.kiwi_res_word_num(kiwiResH, C.int(i))),
 			Score:   float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
 		}
 	}
