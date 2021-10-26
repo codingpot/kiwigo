@@ -147,3 +147,11 @@ func (kb *KiwiBuilder) Build() *Kiwi {
 		handler: h,
 	}
 }
+
+// Close frees the resource allocated for KiwiBuilder and returns the exit status.
+// This must be called after New but not need to called after Build.
+//
+// Returns 0 if successful.
+func (k *KiwiBuilder) Close() int {
+	return int(C.kiwi_builder_close(k.handler))
+}
