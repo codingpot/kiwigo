@@ -12,44 +12,44 @@ func TestKiwiVersion(t *testing.T) {
 
 func TestAnalyze(t *testing.T) {
 	kiwi := New("./ModelGenerator", 1, KIWI_BUILD_DEFAULT)
-	res := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
 
 	expected := []TokenResult{
 		{
 			Tokens: []TokenInfo{
 				{
 					Position: 0,
-					Tag:      "NNG",
+					Tag:      POS_NNG,
 					Form:     "아버지",
 				},
 				{
 					Position: 3,
-					Tag:      "JKS",
+					Tag:      POS_JKS,
 					Form:     "가",
 				},
 				{
 					Position: 5,
-					Tag:      "NNG",
+					Tag:      POS_NNG,
 					Form:     "방",
 				},
 				{
 					Position: 6,
-					Tag:      "JKB",
+					Tag:      POS_JKB,
 					Form:     "에",
 				},
 				{
 					Position: 8,
-					Tag:      "VV",
+					Tag:      POS_VV,
 					Form:     "들어가",
 				},
 				{
 					Position: 11,
-					Tag:      "EP",
+					Tag:      POS_EP,
 					Form:     "시",
 				},
 				{
 					Position: 12,
-					Tag:      "EF",
+					Tag:      POS_EF,
 					Form:     "ᆫ다",
 				},
 			},

@@ -53,8 +53,7 @@ type TokenInfo struct {
 	Position int
 
 	// Tag represents a type of this token (e.g. VV, NNG, ...).
-	// TODO: convert string to enum
-	Tag string
+	Tag POSType
 
 	// Form is the actual string of this token.
 	Form string
@@ -63,11 +62,11 @@ type TokenInfo struct {
 // TokenResult is a result for Analyze.
 type TokenResult struct {
 	Tokens []TokenInfo
-	Score float32
+	Score  float32
 }
 
 // Analyze returns the result of the analysis.
-func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) []TokenResult {
+func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenResult, error) {
 	kiwiResH := C.kiwi_analyze(k.handler, C.CString(text), C.int(topN), C.int(options))
 
 	defer C.kiwi_res_close(kiwiResH)
@@ -79,20 +78,24 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) []TokenResu
 		tokens := make([]TokenInfo, int(C.kiwi_res_word_num(kiwiResH, C.int(i))))
 
 		for j := 0; j < len(tokens); j++ {
+			pos, err := ParsePOSType(C.GoString(C.kiwi_res_tag(kiwiResH, C.int(i), C.int(j))))
+			if err != nil {
+				return nil, err
+			}
 			tokens[j] = TokenInfo{
 				Form:     C.GoString(C.kiwi_res_form(kiwiResH, C.int(i), C.int(j))),
-				Tag:      C.GoString(C.kiwi_res_tag(kiwiResH, C.int(i), C.int(j))),
+				Tag:      pos,
 				Position: int(C.kiwi_res_position(kiwiResH, C.int(i), C.int(j))),
 			}
 		}
 
 		res[i] = TokenResult{
 			Tokens: tokens,
-			Score: float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
+			Score:  float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
 		}
 	}
 
-	return res
+	return res, nil
 }
 
 // Close frees the resource allocated for Kiwi and returns the exit status.
