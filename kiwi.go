@@ -42,7 +42,6 @@ func KiwiError() string {
 // KiwiClearError clear error.
 func KiwiClearError() {
 	C.kiwi_clear_error()
-	return
 }
 
 // Kiwi is a wrapper for the kiwi C library.
@@ -140,6 +139,12 @@ func (k *KiwiBuilder) AddWord(word string, pos string, score float32) int {
 	return int(C.kiwi_builder_add_word(k.handler, C.CString(word), C.CString(pos), C.float(score)))
 }
 
+// LoadDict
+func (k *KiwiBuilder) LoadDict(dictPath string) int {
+	return int(C.kiwi_builder_load_dict(k.handler, C.CString(dictPath)))
+}
+
+// BUild
 func (k *KiwiBuilder) Build() *Kiwi {
 	return &Kiwi{
 		handler: C.kiwi_builder_build(k.handler),
