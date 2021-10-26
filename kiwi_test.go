@@ -117,7 +117,6 @@ func TestAddWord(t *testing.T) {
 
 	assert.Equal(t, expected, res)
 	assert.Equal(t, 0, kiwi.Close())
-	assert.Equal(t, 0, kb.Close())
 }
 
 func TestLoadDict(t *testing.T) {
@@ -173,7 +172,6 @@ func TestLoadDict(t *testing.T) {
 
 	assert.Equal(t, expected, res)
 	assert.Equal(t, 0, kiwi.Close())
-	assert.Equal(t, 0, kb.Close())
 }
 
 func TestLoadDict2(t *testing.T) {
@@ -214,5 +212,4 @@ func TestLoadDict2(t *testing.T) {
 
 	assert.Equal(t, expected, res)
 	assert.Equal(t, 0, kiwi.Close())
-	assert.Equal(t, 0, kb.Close())
 }

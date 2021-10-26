@@ -22,7 +22,6 @@ func ExampleAnalyze() {
 
 func ExempleAddWord() {
 	kb := kiwi.NewBuilder("./ModelGenerator", 1 /*=numThread*/, kiwi.KIWI_BUILD_INTEGRATE_ALLOMORPH /*=options*/)
-	defer kb.Close()
 
 	kb.AddWord("안녕하세요", "NNG", 0)
 
