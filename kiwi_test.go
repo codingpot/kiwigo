@@ -142,12 +142,7 @@ func TestLoadDict(t *testing.T) {
 				{
 					Position: 0,
 					Tag:      "NNG",
-					Form:     "아버지",
-				},
-				{
-					Position: 3,
-					Tag:      "JKS",
-					Form:     "가",
+					Form:     "아버지가",
 				},
 				{
 					Position: 5,
@@ -175,7 +170,7 @@ func TestLoadDict(t *testing.T) {
 					Form:     "ᆫ다",
 				},
 			},
-			Score: -38.967133,
+			Score: -36.959194,
 		},
 	}
 
