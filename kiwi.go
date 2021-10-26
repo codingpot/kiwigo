@@ -129,24 +129,21 @@ func NewBuilder(modelPath string, numThread int, options BuildOption) *KiwiBuild
 	}
 }
 
-// Close
-func (k *KiwiBuilder) Close() int {
-	return int(C.kiwi_builder_close(k.handler))
-}
-
-// AddWord
+// AddWord set custom word with word, pos, score.
 func (k *KiwiBuilder) AddWord(word string, pos POSType, score float32) int {
 	return int(C.kiwi_builder_add_word(k.handler, C.CString(word), C.CString(string(pos)), C.float(score)))
 }
 
-// LoadDict
+// LoadDict loads user dict with dict file path.
 func (k *KiwiBuilder) LoadDict(dictPath string) int {
 	return int(C.kiwi_builder_load_dict(k.handler, C.CString(dictPath)))
 }
 
-// Build
-func (k *KiwiBuilder) Build() *Kiwi {
+// Build creates kiwi instance with user word etc.
+func (kb *KiwiBuilder) Build() *Kiwi {
+	h := C.kiwi_builder_build(kb.handler)
+	defer C.kiwi_builder_close(kb.handler)
 	return &Kiwi{
-		handler: C.kiwi_builder_build(k.handler),
+		handler: h,
 	}
 }
