@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+KIWI_VERSION="v0.10.2"
+
 if [ "$(uname)" == "Linux" ]; then
   OS='lnx'
 elif [ "$(uname)" == "Darwin" ]; then
@@ -8,15 +10,15 @@ elif [ "$(uname)" == "Windows" ]; then
   OS='win'
 fi
 
-echo "set OS env to ${OS}"
+echo "set OS env to ${OS:?}"
+echo "installing Kiwi version ${KIWI_VERSION:?}"
 
-wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/v0.10.1/kiwi_${OS}_x86_64_v0.10.1.tgz" &&
+wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/${KIWI_VERSION}/kiwi_${OS}_x86_64_${KIWI_VERSION}.tgz" &&
   tar xzvf kiwi.tgz &&
   sudo mv build/libkiwi* /usr/local/lib/ &&
   [[ "$(uname)" == "Linux" ]] && sudo ldconfig || echo 'skip' &&
   rm -rf kiwi.tgz build &&
-  wget -O source.tgz https://github.com/bab2min/Kiwi/archive/refs/tags/v0.10.1.tar.gz &&
+  wget -O source.tgz https://github.com/bab2min/Kiwi/archive/refs/tags/${KIWI_VERSION}.tar.gz &&
   tar xzvf source.tgz &&
-  mkdir kiwi &&
-  sudo cp -r Kiwi-0.10.1/include/kiwi /usr/local/include/ &&
+  sudo cp -r Kiwi-${KIWI_VERSION/v/}/include/kiwi /usr/local/include/ &&
   rm -rf source.tgz Kiwi-*
