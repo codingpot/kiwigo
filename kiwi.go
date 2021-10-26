@@ -21,11 +21,13 @@ const (
 type AnalyzeOption int
 
 const (
-	KIWI_MATCH_URL     AnalyzeOption = C.KIWI_MATCH_URL
-	KIWI_MATCH_EMAIL   AnalyzeOption = C.KIWI_MATCH_EMAIL
-	KIWI_MATCH_HASHTAG AnalyzeOption = C.KIWI_MATCH_HASHTAG
-	KIWI_MATCH_MENTION AnalyzeOption = C.KIWI_MATCH_MENTION
-	KIWI_MATCH_ALL     AnalyzeOption = C.KIWI_MATCH_ALL
+	KIWI_MATCH_URL                  AnalyzeOption = C.KIWI_MATCH_URL
+	KIWI_MATCH_EMAIL                AnalyzeOption = C.KIWI_MATCH_EMAIL
+	KIWI_MATCH_HASHTAG              AnalyzeOption = C.KIWI_MATCH_HASHTAG
+	KIWI_MATCH_MENTION              AnalyzeOption = C.KIWI_MATCH_MENTION
+	KIWI_MATCH_ALL                  AnalyzeOption = C.KIWI_MATCH_ALL
+	KIWI_MATCH_NORMALIZE_CODA       AnalyzeOption = C.KIWI_MATCH_NORMALIZE_CODA
+	KIWI_MATCH_ALL_WITH_NORMALIZING AnalyzeOption = C.KIWI_MATCH_ALL_WITH_NORMALIZING
 )
 
 type POSType string
@@ -242,7 +244,6 @@ type TokenInfo struct {
 	Position int
 
 	// Tag represents a type of this token (e.g. VV, NNG, ...).
-	// TODO: convert string to enum
 	Tag POSType
 
 	// Form is the actual string of this token.
@@ -252,7 +253,7 @@ type TokenInfo struct {
 // TokenResult is a result for Analyze.
 type TokenResult struct {
 	Tokens []TokenInfo
-	Score  float32
+	Score float32
 }
 
 // Analyze returns the result of the analysis.
@@ -281,7 +282,7 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 
 		res[i] = TokenResult{
 			Tokens: tokens,
-			Score:  float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
+			Score: float32(C.kiwi_res_prob(kiwiResH, C.int(i))),
 		}
 	}
 

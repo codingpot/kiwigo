@@ -7,7 +7,7 @@ import (
 )
 
 func TestKiwiVersion(t *testing.T) {
-	assert.Equal(t, KiwiVersion(), "0.10.1")
+	assert.Equal(t, KiwiVersion(), "0.10.2")
 }
 
 func TestParsePOSType(t *testing.T) {
