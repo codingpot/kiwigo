@@ -105,7 +105,3 @@ func (k *Kiwi) Close() int {
 	return int(C.kiwi_close(k.handler))
 }
 
-// Close
-func (k *Kiwi) Error() string {
-	return C.GoString(C.kiwi_error(k.handler))
-}
