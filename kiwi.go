@@ -20,11 +20,13 @@ const (
 type AnalyzeOption int
 
 const (
-	KIWI_MATCH_URL     AnalyzeOption = C.KIWI_MATCH_URL
-	KIWI_MATCH_EMAIL   AnalyzeOption = C.KIWI_MATCH_EMAIL
-	KIWI_MATCH_HASHTAG AnalyzeOption = C.KIWI_MATCH_HASHTAG
-	KIWI_MATCH_MENTION AnalyzeOption = C.KIWI_MATCH_MENTION
-	KIWI_MATCH_ALL     AnalyzeOption = C.KIWI_MATCH_ALL
+	KIWI_MATCH_URL                  AnalyzeOption = C.KIWI_MATCH_URL
+	KIWI_MATCH_EMAIL                AnalyzeOption = C.KIWI_MATCH_EMAIL
+	KIWI_MATCH_HASHTAG              AnalyzeOption = C.KIWI_MATCH_HASHTAG
+	KIWI_MATCH_MENTION              AnalyzeOption = C.KIWI_MATCH_MENTION
+	KIWI_MATCH_ALL                  AnalyzeOption = C.KIWI_MATCH_ALL
+	KIWI_MATCH_NORMALIZE_CODA       AnalyzeOption = C.KIWI_MATCH_NORMALIZE_CODA
+	KIWI_MATCH_ALL_WITH_NORMALIZING AnalyzeOption = C.KIWI_MATCH_ALL_WITH_NORMALIZING
 )
 
 // KiwiVersion returns the version of the kiwi library.

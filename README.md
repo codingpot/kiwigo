@@ -11,7 +11,13 @@ https://github.com/bab2min/Kiwi for go
 
 check out how to install Kiwi [here](https://github.com/bab2min/Kiwi#%EC%84%A4%EC%B9%98)
 
-### example script
+### Example script (install using the helper script)
+
+```bash
+bash ./scripts/install_kiwi.bash
+```
+
+### Example script (install from source)
 
 ```bash
 git clone git@github.com:bab2min/Kiwi.git
