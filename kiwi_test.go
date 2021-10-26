@@ -60,3 +60,156 @@ func TestAnalyze(t *testing.T) {
 	assert.Equal(t, expected, res)
 	assert.Equal(t, 0, kiwi.Close())
 }
+
+func TestAddWordFail(t *testing.T) {
+	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	add := kb.AddWord("아버지가", "SKO", 0)
+	assert.Equal(t, 0, add)
+	assert.Equal(t, 0, kb.Close())
+}
+
+func TestAddWord(t *testing.T) {
+	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	add := kb.AddWord("아버지가", "NNG", 0)
+
+	assert.Equal(t, 0, add)
+
+	kiwi := kb.Build()
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+
+	expected := []TokenResult{
+		{
+			Tokens: []TokenInfo{
+				{
+					Position: 0,
+					Tag:      "NNG",
+					Form:     "아버지가",
+				},
+				{
+					Position: 5,
+					Tag:      "NNG",
+					Form:     "방",
+				},
+				{
+					Position: 6,
+					Tag:      "JKB",
+					Form:     "에",
+				},
+				{
+					Position: 8,
+					Tag:      "VV",
+					Form:     "들어가",
+				},
+				{
+					Position: 11,
+					Tag:      "EP",
+					Form:     "시",
+				},
+				{
+					Position: 12,
+					Tag:      "EF",
+					Form:     "ᆫ다",
+				},
+			},
+			Score: -36.959194,
+		},
+	}
+
+	assert.Equal(t, expected, res)
+	assert.Equal(t, 0, kiwi.Close())
+}
+
+func TestLoadDict(t *testing.T) {
+	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	add := kb.LoadDict("./example/user_dict.tsv")
+
+	assert.Equal(t, 1, add)
+
+	err := KiwiError()
+
+	assert.Equal(t, "", err)
+
+	kiwi := kb.Build()
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+
+	expected := []TokenResult{
+		{
+			Tokens: []TokenInfo{
+				{
+					Position: 0,
+					Tag:      "NNG",
+					Form:     "아버지가",
+				},
+				{
+					Position: 5,
+					Tag:      "NNG",
+					Form:     "방",
+				},
+				{
+					Position: 6,
+					Tag:      "JKB",
+					Form:     "에",
+				},
+				{
+					Position: 8,
+					Tag:      "VV",
+					Form:     "들어가",
+				},
+				{
+					Position: 11,
+					Tag:      "EP",
+					Form:     "시",
+				},
+				{
+					Position: 12,
+					Tag:      "EF",
+					Form:     "ᆫ다",
+				},
+			},
+			Score: -36.959194,
+		},
+	}
+
+	assert.Equal(t, expected, res)
+	assert.Equal(t, 0, kiwi.Close())
+}
+
+func TestLoadDict2(t *testing.T) {
+	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	add := kb.LoadDict("./example/user_dict2.tsv")
+
+	assert.Equal(t, 3, add)
+
+	err := KiwiError()
+
+	assert.Equal(t, "", err)
+
+	kiwi := kb.Build()
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+
+	expected := []TokenResult{
+		{
+			Tokens: []TokenInfo{
+				{
+					Position: 0,
+					Tag:      "NNG",
+					Form:     "아버지가",
+				},
+				{
+					Position: 5,
+					Tag:      "NNG",
+					Form:     "방에",
+				},
+				{
+					Position: 8,
+					Tag:      "NNG",
+					Form:     "들어가신다",
+				},
+			},
+			Score: -13.669565,
+		},
+	}
+
+	assert.Equal(t, expected, res)
+	assert.Equal(t, 0, kiwi.Close())
+}

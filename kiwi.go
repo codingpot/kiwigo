@@ -34,6 +34,16 @@ func KiwiVersion() string {
 	return C.GoString(C.kiwi_version())
 }
 
+// KiwiError returns the Error messages.
+func KiwiError() string {
+	return C.GoString(C.kiwi_error())
+}
+
+// KiwiClearError clear error.
+func KiwiClearError() {
+	C.kiwi_clear_error()
+}
+
 // Kiwi is a wrapper for the kiwi C library.
 type Kiwi struct {
 	handler C.kiwi_h
@@ -104,4 +114,44 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 // Returns 0 if successful.
 func (k *Kiwi) Close() int {
 	return int(C.kiwi_close(k.handler))
+}
+
+// KiwiBuilder is a wrapper for the kiwi C library.
+type KiwiBuilder struct {
+	handler C.kiwi_builder_h
+}
+
+// NewBuilder returns a new KiwiBuilder instance.
+// Don't forget to call Close after this.
+func NewBuilder(modelPath string, numThread int, options BuildOption) *KiwiBuilder {
+	return &KiwiBuilder{
+		handler: C.kiwi_builder_init(C.CString(modelPath), C.int(numThread), C.int(options)),
+	}
+}
+
+// AddWord set custom word with word, pos, score.
+func (k *KiwiBuilder) AddWord(word string, pos POSType, score float32) int {
+	return int(C.kiwi_builder_add_word(k.handler, C.CString(word), C.CString(string(pos)), C.float(score)))
+}
+
+// LoadDict loads user dict with dict file path.
+func (k *KiwiBuilder) LoadDict(dictPath string) int {
+	return int(C.kiwi_builder_load_dict(k.handler, C.CString(dictPath)))
+}
+
+// Build creates kiwi instance with user word etc.
+func (kb *KiwiBuilder) Build() *Kiwi {
+	h := C.kiwi_builder_build(kb.handler)
+	defer C.kiwi_builder_close(kb.handler)
+	return &Kiwi{
+		handler: h,
+	}
+}
+
+// Close frees the resource allocated for KiwiBuilder and returns the exit status.
+// This must be called after New but not need to called after Build.
+//
+// Returns 0 if successful.
+func (k *KiwiBuilder) Close() int {
+	return int(C.kiwi_builder_close(k.handler))
 }
