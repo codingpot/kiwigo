@@ -20,5 +20,5 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - uses: actions/checkout@v2
-      - run: bash "./scripts/install_kiwi.bash"
+      - run: make install-kiwi
       - run: make test

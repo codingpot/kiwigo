@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-KIWI_VERSION="v0.10.2"
+# e.g. v0.10.2
+KIWI_VERSION="$1"
 
 if [ "$(uname)" == "Linux" ]; then
   OS='lnx'
