@@ -77,6 +77,9 @@ func TestAddWord(t *testing.T) {
 	kiwi := kb.Build()
 	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
 
+	// kb should have been closed.
+	assert.Equal(t, 0, kb.Close())
+
 	expected := []TokenResult{
 		{
 			Tokens: []TokenInfo{
@@ -130,6 +133,10 @@ func TestLoadDict(t *testing.T) {
 	assert.Equal(t, "", err)
 
 	kiwi := kb.Build()
+
+	// kb should have been closed already.
+	assert.Equal(t, 0, kb.Close())
+
 	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
 
 	expected := []TokenResult{

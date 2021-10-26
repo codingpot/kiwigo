@@ -113,7 +113,12 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 //
 // Returns 0 if successful.
 func (k *Kiwi) Close() int {
-	return int(C.kiwi_close(k.handler))
+	if k.handler != nil {
+		out := int(C.kiwi_close(k.handler))
+		k.handler = nil
+		return out
+	}
+	return 0
 }
 
 // KiwiBuilder is a wrapper for the kiwi C library.
@@ -130,19 +135,19 @@ func NewBuilder(modelPath string, numThread int, options BuildOption) *KiwiBuild
 }
 
 // AddWord set custom word with word, pos, score.
-func (k *KiwiBuilder) AddWord(word string, pos POSType, score float32) int {
-	return int(C.kiwi_builder_add_word(k.handler, C.CString(word), C.CString(string(pos)), C.float(score)))
+func (kb *KiwiBuilder) AddWord(word string, pos POSType, score float32) int {
+	return int(C.kiwi_builder_add_word(kb.handler, C.CString(word), C.CString(string(pos)), C.float(score)))
 }
 
 // LoadDict loads user dict with dict file path.
-func (k *KiwiBuilder) LoadDict(dictPath string) int {
-	return int(C.kiwi_builder_load_dict(k.handler, C.CString(dictPath)))
+func (kb *KiwiBuilder) LoadDict(dictPath string) int {
+	return int(C.kiwi_builder_load_dict(kb.handler, C.CString(dictPath)))
 }
 
 // Build creates kiwi instance with user word etc.
 func (kb *KiwiBuilder) Build() *Kiwi {
 	h := C.kiwi_builder_build(kb.handler)
-	defer C.kiwi_builder_close(kb.handler)
+	defer kb.Close()
 	return &Kiwi{
 		handler: h,
 	}
@@ -152,6 +157,11 @@ func (kb *KiwiBuilder) Build() *Kiwi {
 // This must be called after New but not need to called after Build.
 //
 // Returns 0 if successful.
-func (k *KiwiBuilder) Close() int {
-	return int(C.kiwi_builder_close(k.handler))
+func (kb *KiwiBuilder) Close() int {
+	if kb.handler != nil {
+		out := int(C.kiwi_builder_close(kb.handler))
+		kb.handler = nil
+		return out
+	}
+	return 0
 }
