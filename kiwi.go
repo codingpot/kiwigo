@@ -1,10 +1,9 @@
 // Package kiwi is a Go binding for Kiwi (https://github.com/bab2min/Kiwi) project.
 package kiwi
 
-/*
-#cgo LDFLAGS: -l kiwi
-#include <kiwi/capi.h>
-*/
+// #cgo linux LDFLAGS: -L${SRCDIR}/libs/Linux_x86_64 -lkiwi
+// #cgo darwin LDFLAGS: -L${SRCDIR}/libs/Darwin_x86_64 -lkiwi
+// #include <include/capi.h>
 import "C"
 
 // BuildOption is a bitwise OR of the KiwiBuildOption values.
