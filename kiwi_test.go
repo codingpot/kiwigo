@@ -192,7 +192,7 @@ func TestLoadDict2(t *testing.T) {
 	assert.Equal(t, "", err)
 
 	kiwi := kb.Build()
-	res, _ := kiwi.Analyze("아버지가 방에 들어가신다. 두번째 문장은 어떻게 넣지?", 1, KIWI_MATCH_ALL)
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
 
 	expected := []TokenResult{
 		{
@@ -222,8 +222,9 @@ func TestLoadDict2(t *testing.T) {
 }
 
 func TestExtractWord(t *testing.T) {
-	kb := ExtractWord("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
-	add := kb.AddWord("아버지가", "SKO", 0)
-	assert.Equal(t, 0, add)
+
+	kb := NewBuilder("./ModelGenerator", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	w, _ := kb.ExtractWord("안녕하세요 이게 문장 테스트입니다.", 3, 5, 0.4, 0.1)
+	assert.Equal(t, 0, w)
 	assert.Equal(t, 0, kb.Close())
 }
