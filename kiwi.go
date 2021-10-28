@@ -165,3 +165,48 @@ func (kb *KiwiBuilder) Close() int {
 	}
 	return 0
 }
+
+//// Close frees the resource allocated for KiwiBuilder and returns the exit status.
+//// This must be called after New but not need to called after Build.
+////
+//// Returns 0 if successful.
+//func (k *KiwiBuilder) Close() int {
+//	return int(C.kiwi_builder_close(k.handler))
+//}
+
+//// WordCandidate returns the token info for the given token(Str).
+//type WordInfo struct {
+//	Form     string
+//	Freq     int
+//	POSScore float32
+//	Score    float32
+//}
+
+//// TokenResult is a result for Analyze.
+//type WordResult struct {
+//	Words []WordInfo
+//}
+
+//// ExtractWord returns the result of extract word.
+//func (kb *KiwiBuilder) ExtractWord() ([]WordResult, error) {
+//	kiwiWsH := C.kiwi_builder_extract_words(kb.handler, C.CString(text), C.int(topN), C.int(options))
+//	defer C.kiwi_ws_close(kiwiWsH)
+
+//	resSize := int(C.kiwi_ws_size(kiwiResH))
+//	res := make([]WordInfo, resSize)
+
+//	for i := 0; i < resSize; i++ {
+//		words[j] = WordInfo{
+//			Form:     C.GoString(C.kiwi_ws_form(kiwiWsH, C.int(i))),
+//			Freq:     int(C.kiwi_ws_freq(kiwiWsH, C.int(i))),
+//			POSScore: float32(C.kiwi_ws_pos_score(kiwiWsH, C.int(i))),
+//		}
+
+//		res[i] = WordResult{
+//			Words: words,
+//			Score: float32(C.kiwi_ws_score(kiwiWsH, C.int(i))),
+//		}
+//	}
+
+//	return res, nil
+//}
