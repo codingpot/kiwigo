@@ -12,8 +12,10 @@ package kiwi
 int KiwiReaderBridge(int lineNumber, char *buffer, void *userData);
 */
 import "C"
+
 import (
 	"bufio"
+	"io"
 	"runtime/cgo"
 	"unsafe"
 )
@@ -187,18 +189,26 @@ type WordInfo struct {
 
 //export KiwiReaderImpl
 func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C.int {
-	scanner := cgo.Handle(userData).Value().(*bufio.Scanner)
-
-	if buffer == nil {
+	rs := cgo.Handle(userData).Value().(io.ReadSeeker)
+	scanner := bufio.NewScanner(rs)
+	linenow := 0
+	text := ""
+	for {
 		if scanner.Scan() {
-			text := scanner.Text()
-			return C.int(len([]byte(text)))
+			if linenow == int(lineNumber) {
+				text = scanner.Text()
+				rs.Seek(0, 0)
+				break
+			}
+			linenow++
+		} else {
+			return C.int(0)
 		}
-
-		return C.int(0)
+	}
+	if buffer == nil {
+		return C.int(len([]byte(text)))
 	}
 
-	text := scanner.Text()
 	textCString := C.CString(text)
 	defer C.free(unsafe.Pointer(textCString))
 
@@ -208,7 +218,7 @@ func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C
 }
 
 // ExtractWord returns the result of extract word.
-func (kb *KiwiBuilder) ExtractWords(scanner *bufio.Scanner, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
+func (kb *KiwiBuilder) ExtractWords(scanner io.ReadSeeker, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
 	h := cgo.NewHandle(scanner)
 	defer h.Delete()
 
