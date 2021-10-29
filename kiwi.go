@@ -6,6 +6,7 @@ package kiwi
 #include <kiwi/capi.h>
 */
 import "C"
+import "unsafe"
 
 // BuildOption is a bitwise OR of the KiwiBuildOption values.
 type BuildOption int
@@ -174,10 +175,19 @@ type WordInfo struct {
 	Score    float32
 }
 
+func KiwiReaderImpl(lineNumber int, buffer *string, userData []string) int {
+	if buffer == nil {
+		return userData[lineNumber]
+	}
+
+	*buffer = userData[lineNumber]
+	return 0
+}
+
 // ExtractWord returns the result of extract word.
 func (kb *KiwiBuilder) ExtractWord(text string, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
-	msg := C.CString(text)
-	kiwiWsH := C.kiwi_builder_extract_words(kb.handler, &msg, nil, C.int(minCnt), C.int(maxWordLen), C.float(minScore), C.float(posThreshold))
+
+	kiwiWsH := C.kiwi_builder_extract_words(kb.handler, *KiwiReaderImpl, unsafe.Pointer(nil), C.int(minCnt), C.int(maxWordLen), C.float(minScore), C.float(posThreshold))
 	defer C.kiwi_ws_close(kiwiWsH)
 
 	resSize := int(C.kiwi_ws_size(kiwiWsH))
