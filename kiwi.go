@@ -2,11 +2,21 @@
 package kiwi
 
 /*
-#cgo LDFLAGS: -l kiwi
+#cgo LDFLAGS: -v -l kiwi
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h> // for uintptr_t
+
 #include <kiwi/capi.h>
+
+int KiwiReaderBridge(int lineNumber, char *buffer, void *userData);
 */
 import "C"
-import "unsafe"
+import (
+	"bufio"
+	"runtime/cgo"
+	"unsafe"
+)
 
 // BuildOption is a bitwise OR of the KiwiBuildOption values.
 type BuildOption int
@@ -175,19 +185,38 @@ type WordInfo struct {
 	Score    float32
 }
 
-func KiwiReaderImpl(lineNumber int, buffer *string, userData []string) int {
+//export KiwiReaderImpl
+func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C.int {
+	scanner := cgo.Handle(userData).Value().(*bufio.Scanner)
+
 	if buffer == nil {
-		return userData[lineNumber]
+		if scanner.Scan() {
+			text := scanner.Text()
+			return C.int(len([]byte(text)))
+		}
+
+		return C.int(0)
 	}
 
-	*buffer = userData[lineNumber]
-	return 0
+	text := scanner.Text()
+	textCString := C.CString(text)
+	defer C.free(unsafe.Pointer(textCString))
+
+	C.strcpy(buffer, textCString)
+
+	return C.int(0)
 }
 
 // ExtractWord returns the result of extract word.
-func (kb *KiwiBuilder) ExtractWord(text string, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
+func (kb *KiwiBuilder) ExtractWords(scanner *bufio.Scanner, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
+	h := cgo.NewHandle(scanner)
+	defer h.Delete()
 
-	kiwiWsH := C.kiwi_builder_extract_words(kb.handler, *KiwiReaderImpl, unsafe.Pointer(nil), C.int(minCnt), C.int(maxWordLen), C.float(minScore), C.float(posThreshold))
+	kiwiWsH := C.kiwi_builder_extract_words(
+		kb.handler,
+		C.kiwi_reader_t(C.KiwiReaderBridge),
+		unsafe.Pointer(h),
+		C.int(minCnt), C.int(maxWordLen), C.float(minScore), C.float(posThreshold))
 	defer C.kiwi_ws_close(kiwiWsH)
 
 	resSize := int(C.kiwi_ws_size(kiwiWsH))
@@ -201,5 +230,6 @@ func (kb *KiwiBuilder) ExtractWord(text string, minCnt int, maxWordLen int, minS
 			Score:    float32(C.kiwi_ws_score(kiwiWsH, C.int(i))),
 		}
 	}
+
 	return res, nil
 }
