@@ -2,19 +2,19 @@
 package kiwi
 
 /*
-#cgo LDFLAGS: -v -l kiwi
+#cgo LDFLAGS: -l kiwi
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h> // for uintptr_t
 
 #include <kiwi/capi.h>
 
-int KiwiReaderBridge(int lineNumber, char *buffer, void *userData);
+extern int KiwiReaderBridge(int lineNumber, char *buffer, void *userData);
 */
 import "C"
 
 import (
-	"bufio"
+	"github.com/codingpot/kiwigo/internal"
 	"io"
 	"runtime/cgo"
 	"unsafe"
@@ -189,37 +189,31 @@ type WordInfo struct {
 
 //export KiwiReaderImpl
 func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C.int {
-	rs := cgo.Handle(userData).Value().(io.ReadSeeker)
-	scanner := bufio.NewScanner(rs)
-	linenow := 0
-	text := ""
-	for {
-		if scanner.Scan() {
-			if linenow == int(lineNumber) {
-				text = scanner.Text()
-				rs.Seek(0, 0)
-				break
-			}
-			linenow++
-		} else {
-			rs.Seek(0, 0)
-			return C.int(0)
-		}
+	scanner := cgo.Handle(userData).Value().(*internal.RewindScanner)
+
+	if lineNumber == 0 {
+		scanner.Rewind()
 	}
 
 	if buffer == nil {
+		if !scanner.Scan() {
+			return C.int(0)
+		}
+
+		text := scanner.Text()
 		return C.int(len([]byte(text)))
 	}
 
-	textCString := C.CString(text)
+	textCString := C.CString(scanner.Text())
 	defer C.free(unsafe.Pointer(textCString))
 
 	C.strcpy(buffer, textCString)
 	return C.int(0)
 }
 
-// ExtractWord returns the result of extract word.
-func (kb *KiwiBuilder) ExtractWords(scanner io.ReadSeeker, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
+// ExtractWords returns the result of extract word.
+func (kb *KiwiBuilder) ExtractWords(readSeeker io.ReadSeeker, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
+	scanner := internal.NewRewindScanner(readSeeker)
 	h := cgo.NewHandle(scanner)
 	defer h.Delete()
 
@@ -231,6 +225,11 @@ func (kb *KiwiBuilder) ExtractWords(scanner io.ReadSeeker, minCnt int, maxWordLe
 	defer C.kiwi_ws_close(kiwiWsH)
 
 	resSize := int(C.kiwi_ws_size(kiwiWsH))
+
+	if resSize < 0 {
+		resSize = 0
+	}
+
 	res := make([]WordInfo, resSize)
 
 	for i := 0; i < resSize; i++ {
