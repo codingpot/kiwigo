@@ -202,9 +202,11 @@ func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C
 			}
 			linenow++
 		} else {
+			rs.Seek(0, 0)
 			return C.int(0)
 		}
 	}
+
 	if buffer == nil {
 		return C.int(len([]byte(text)))
 	}
@@ -213,7 +215,6 @@ func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C
 	defer C.free(unsafe.Pointer(textCString))
 
 	C.strcpy(buffer, textCString)
-
 	return C.int(0)
 }
 
