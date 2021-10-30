@@ -1,6 +1,8 @@
 package kiwi
 
 import (
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -219,4 +221,38 @@ func TestLoadDict2(t *testing.T) {
 
 	assert.Equal(t, expected, res)
 	assert.Equal(t, 0, kiwi.Close())
+}
+
+func TestExtractWord(t *testing.T) {
+	kb := NewBuilder("./ModelGenerator", 0, KIWI_BUILD_DEFAULT)
+	rs := strings.NewReader(`2008년에는 애국가의 작곡자 안익태가 1930년대에 독일 유학 기간 중 친일 활동을 했다는 사실이 밝혀졌다. 이후 안익태가 나치 독일 하의
+베를린에서 만주국 10주년 건국 기념음악회를 지휘하는 동영상까지 발굴되어 관련 학계나 사회에 큰 충격을 주었다. 안익태가 친일 행적을 한 바
+있다는 빼도박도 못할 증거가 나왔으니까. 영상물의 '만주환상곡'에는 우리가 현재 알고있는 '한국환상곡'의 두 선율("무궁화 삼천리 나의 사랑아,
+영광의 태극기 길이 빛나라", "화려한 강산 한반도, 나의 사랑 한반도 너희 뿐일세")에 거의 그 모습 그대로 나타난다. # 이로 인해 애국가의
+본이 되는 한국환상곡은 사실 만주국 창립 기념을 위한 만주환상곡에서 따왔다는 주장이 제기되었고, 일각에서는 현재의 애국가는 가사(공식적으론 작사
+미상이나 가장 유력한 윤치호 작사를 인정 못해서 그렇다는게 중론), 곡(안익태 작곡) 모두 친일파의 산물이라고 주장하며 국가 재제정 운동을
+벌이기도 하였다. 만약 애국가 악곡의 일부를 만주환상곡에서 가져왔다는 주장이 사실이라면 이 문제가 언젠가 공론화가 된다면 국가 교체가 이루어질
+가능성이 크다. 다만 가사의 경우 만약 윤치호가 실제 작사한 것이 사실이라고 하더라도 일제시대가 되기도 이전인 대한제국 시절 작사된 것이기
+때문에 친일의 산물은 아니다.`)
+	wordInfos, _ := kb.ExtractWords(rs, 3 /*=minCnt*/, 3 /*=maxWordLen*/, 0.0 /*=minScore*/, -3.0 /*=posThreshold*/)
+	assert.Equal(t, []WordInfo{
+		{
+			Form:     "안익",
+			Freq:     3,
+			POSScore: -1.92593,
+			Score:    0,
+		},
+	}, wordInfos)
+	assert.Equal(t, 0, kb.Close())
+}
+
+func TestExtractWordwithFile(t *testing.T) {
+	kb := NewBuilder("./ModelGenerator", 0, KIWI_BUILD_DEFAULT)
+	file, _ := os.Open("./example/test.txt")
+
+	wordInfos, _ := kb.ExtractWords(file, 2 /*=minCnt*/, 5 /*=maxWordLen*/, 0.0 /*=minScore*/, -25.0 /*=posThreshold*/)
+	assert.Equal(t, WordInfo{
+		Form: "민주적", Freq: 4, POSScore: -3.0096114, Score: 0.1159699,
+	}, wordInfos[0])
+	assert.Equal(t, 0, kb.Close())
 }

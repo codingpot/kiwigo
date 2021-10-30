@@ -3,9 +3,23 @@ package kiwi
 
 /*
 #cgo LDFLAGS: -l kiwi
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h> // for uintptr_t
+
 #include <kiwi/capi.h>
+
+extern int KiwiReaderBridge(int lineNumber, char *buffer, void *userData);
 */
 import "C"
+
+import (
+	"io"
+	"runtime/cgo"
+	"unsafe"
+
+	"github.com/codingpot/kiwigo/internal"
+)
 
 // BuildOption is a bitwise OR of the KiwiBuildOption values.
 type BuildOption int
@@ -164,4 +178,69 @@ func (kb *KiwiBuilder) Close() int {
 		return out
 	}
 	return 0
+}
+
+// WordInfo returns the token info for the given token(Str).
+type WordInfo struct {
+	Form     string
+	Freq     int
+	POSScore float32
+	Score    float32
+}
+
+//export KiwiReaderImpl
+func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C.int {
+	scanner := cgo.Handle(userData).Value().(*internal.RewindScanner)
+
+	if buffer == nil {
+		if lineNumber == 0 {
+			scanner.Rewind()
+		}
+
+		if !scanner.Scan() {
+			return C.int(0)
+		}
+
+		text := scanner.Text()
+		return C.int(len([]byte(text)))
+	}
+
+	textCString := C.CString(scanner.Text())
+	defer C.free(unsafe.Pointer(textCString))
+
+	C.strcpy(buffer, textCString)
+	return C.int(0)
+}
+
+// ExtractWords returns the result of extract word.
+func (kb *KiwiBuilder) ExtractWords(readSeeker io.ReadSeeker, minCnt int, maxWordLen int, minScore float32, posThreshold float32) ([]WordInfo, error) {
+	scanner := internal.NewRewindScanner(readSeeker)
+	h := cgo.NewHandle(scanner)
+	defer h.Delete()
+
+	kiwiWsH := C.kiwi_builder_extract_words(
+		kb.handler,
+		C.kiwi_reader_t(C.KiwiReaderBridge),
+		unsafe.Pointer(h),
+		C.int(minCnt), C.int(maxWordLen), C.float(minScore), C.float(posThreshold))
+	defer C.kiwi_ws_close(kiwiWsH)
+
+	resSize := int(C.kiwi_ws_size(kiwiWsH))
+
+	if resSize < 0 {
+		resSize = 0
+	}
+
+	res := make([]WordInfo, resSize)
+
+	for i := 0; i < resSize; i++ {
+		res[i] = WordInfo{
+			Form:     C.GoString(C.kiwi_ws_form(kiwiWsH, C.int(i))),
+			Freq:     int(C.kiwi_ws_freq(kiwiWsH, C.int(i))),
+			POSScore: float32(C.kiwi_ws_pos_score(kiwiWsH, C.int(i))),
+			Score:    float32(C.kiwi_ws_score(kiwiWsH, C.int(i))),
+		}
+	}
+
+	return res, nil
 }
