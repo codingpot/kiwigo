@@ -202,7 +202,7 @@ func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C
 		}
 
 		text := scanner.Text()
-		return C.int(len([]byte(text)))
+		return C.int(len([]byte(text)) + 1)
 	}
 
 	textCString := C.CString(scanner.Text())
