@@ -1,6 +1,7 @@
 package kiwi
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -242,5 +243,16 @@ func TestExtractWord(t *testing.T) {
 			Score:    0,
 		},
 	}, wordInfos)
+	assert.Equal(t, 0, kb.Close())
+}
+
+func TestExtractWordwithFile(t *testing.T) {
+	kb := NewBuilder("./ModelGenerator", 0, KIWI_BUILD_DEFAULT)
+	file, _ := os.Open("./example/test.txt")
+
+	wordInfos, _ := kb.ExtractWords(file, 2 /*=minCnt*/, 5 /*=maxWordLen*/, 0.0 /*=minScore*/, -25.0 /*=posThreshold*/)
+	assert.Equal(t, WordInfo{
+		Form: "민주적", Freq: 4, POSScore: -3.0096114, Score: 0.1159699,
+	}, wordInfos[0])
 	assert.Equal(t, 0, kb.Close())
 }
