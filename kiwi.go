@@ -122,6 +122,31 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 	return res, nil
 }
 
+// SplitResult returns the Sentences.
+type SplitResult struct {
+	Begin int
+	End   int
+}
+
+// SplitSentence returns the line of sentences.
+func (k *Kiwi) SplitSentence(text string, options AnalyzeOption) ([]SplitResult, error) {
+	kiwiSsH := C.kiwi_split_into_sents(k.handler, C.CString(text), C.int(options), nil)
+
+	defer C.kiwi_ss_close(kiwiSsH)
+
+	resSize := int(C.kiwi_ss_size(kiwiSsH))
+	res := make([]SplitResult, resSize)
+
+	for i := 0; i < resSize; i++ {
+		res[i] = SplitResult{
+			Begin: int(C.kiwi_ss_begin_position(kiwiSsH, C.int(i))),
+			End:   int(C.kiwi_ss_end_position(kiwiSsH, C.int(i))),
+		}
+	}
+
+	return res, nil
+}
+
 // Close frees the resource allocated for Kiwi and returns the exit status.
 // This must be called after New.
 // Returns 0 if successful.

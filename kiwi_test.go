@@ -9,7 +9,7 @@ import (
 )
 
 func TestKiwiVersion(t *testing.T) {
-	assert.Equal(t, KiwiVersion(), "0.10.2")
+	assert.Equal(t, KiwiVersion(), "0.10.3")
 }
 
 func TestAnalyze(t *testing.T) {
@@ -56,6 +56,25 @@ func TestAnalyze(t *testing.T) {
 				},
 			},
 			Score: -38.967132568359375,
+		},
+	}
+
+	assert.Equal(t, expected, res)
+	assert.Equal(t, 0, kiwi.Close())
+}
+
+func TestSplitSentence(t *testing.T) {
+	kiwi := New("./ModelGenerator", 1, KIWI_BUILD_DEFAULT)
+	res, _ := kiwi.SplitSentence("아버지가 방에 들어가신다. 사랑합니다.", KIWI_MATCH_ALL)
+
+	expected := []SplitResult{
+		{
+			Begin: 0,
+			End:   36,
+		},
+		{
+			Begin: 37,
+			End:   53,
 		},
 	}
 

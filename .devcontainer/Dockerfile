@@ -9,21 +9,11 @@ ARG NODE_VERSION="none"
 RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
 # [Optional] Uncomment this section to install additional OS packages.
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends cmake \
-    && git clone https://github.com/bab2min/Kiwi.git \
-    && cd Kiwi \
-    && git submodule sync \
-    && git submodule update --init --recursive \
-    && mkdir build \
-    && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release ../ \
-    && make && make install \
-    && ldconfig \
-    && cd ../.. && rm -rf Kiwi \
-    && apt-get --purge -y remove cmake \
-    && apt autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+#    && apt-get -y install --no-install-recommends cmake \
+#    && apt-get --purge -y remove cmake \
+#    && apt autoremove -y \
+#    && rm -rf /var/lib/apt/lists/*
 
 
 RUN sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --yes
