@@ -3,14 +3,18 @@ package kiwi
 
 /*
 #cgo LDFLAGS: -l kiwi
+#cgo linux LDFLAGS: -L${SRCDIR}/libs/Linux_x86_64 -lkiwi
+#cgo darwin LDFLAGS: -L${SRCDIR}/libs/Darwin_x86_64 -lkiwi
+#cgo windows LDFLAGS: -L${SRCDIR}/libs/Windows_x86_64 -lkiwi
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h> // for uintptr_t
 
-#include <kiwi/capi.h>
+#include <include/capi.h>
 
 extern int KiwiReaderBridge(int lineNumber, char *buffer, void *userData);
 */
+
 import "C"
 
 import (

@@ -9,7 +9,6 @@ ModelGenerator/default.dict:
 	tar -xzvf model.tgz
 	rm -f model.tgz
 
-
 .PHONY: install-kiwi
 install-kiwi:
 	bash scripts/install_kiwi.bash $(KIWI_VERSION)
