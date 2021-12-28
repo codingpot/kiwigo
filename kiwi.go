@@ -131,9 +131,6 @@ type SplitResult struct {
 
 // SplitSentence returns the line of sentences.
 func (k *Kiwi) SplitSentence(text string, options AnalyzeOption) ([]SplitResult, error) {
-	// ? why do this on split?
-	//kiwiResH := C.kiwi_analyze(k.handler, C.CString(""), C.int(1), C.int(options))
-	//defer C.kiwi_res_close(kiwiResH)
 	kiwiSsH := C.kiwi_split_into_sents(k.handler, C.CString(text), C.int(options), nil)
 	defer C.kiwi_ss_close(kiwiSsH)
 
