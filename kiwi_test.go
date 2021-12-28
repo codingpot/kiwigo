@@ -65,16 +65,20 @@ func TestAnalyze(t *testing.T) {
 
 func TestSplitSentence(t *testing.T) {
 	kiwi := New("./ModelGenerator", 1, KIWI_BUILD_DEFAULT)
-	res, _ := kiwi.SplitSentence("아버지가 방에 들어가신다. 사랑합니다.", KIWI_MATCH_ALL)
+	res, _ := kiwi.SplitSentence("여러 문장으로 구성된 텍스트네 이걸 분리해줘", KIWI_MATCH_ALL)
 
 	expected := []SplitResult{
 		{
-			Begin: 0,
-			End:   36,
+			Text:   "여러 문장으로 구성된 텍스트네",
+			Begin:  0,
+			End:    42,
+			Tokens: nil,
 		},
 		{
-			Begin: 37,
-			End:   53,
+			Text:   "이걸 분리해줘",
+			Begin:  43,
+			End:    62,
+			Tokens: nil,
 		},
 	}
 
