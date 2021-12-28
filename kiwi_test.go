@@ -69,16 +69,14 @@ func TestSplitSentence(t *testing.T) {
 
 	expected := []SplitResult{
 		{
-			Text:   "여러 문장으로 구성된 텍스트네",
-			Begin:  0,
-			End:    42,
-			Tokens: nil,
+			Text:  "여러 문장으로 구성된 텍스트네",
+			Begin: 0,
+			End:   42,
 		},
 		{
-			Text:   "이걸 분리해줘",
-			Begin:  43,
-			End:    62,
-			Tokens: nil,
+			Text:  "이걸 분리해줘",
+			Begin: 43,
+			End:   62,
 		},
 	}
 

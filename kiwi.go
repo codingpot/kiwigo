@@ -124,17 +124,17 @@ func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenRes
 
 // SplitResult returns the Sentences.
 type SplitResult struct {
-	Text   string
-	Begin  int
-	End    int
-	Tokens []TokenInfo
+	Text  string
+	Begin int
+	End   int
 }
 
 // SplitSentence returns the line of sentences.
 func (k *Kiwi) SplitSentence(text string, options AnalyzeOption) ([]SplitResult, error) {
-
+	// ? why do this on split?
+	//kiwiResH := C.kiwi_analyze(k.handler, C.CString(""), C.int(1), C.int(options))
+	//defer C.kiwi_res_close(kiwiResH)
 	kiwiSsH := C.kiwi_split_into_sents(k.handler, C.CString(text), C.int(options), nil)
-
 	defer C.kiwi_ss_close(kiwiSsH)
 
 	resSize := int(C.kiwi_ss_size(kiwiSsH))
@@ -144,10 +144,9 @@ func (k *Kiwi) SplitSentence(text string, options AnalyzeOption) ([]SplitResult,
 		begin := int(C.kiwi_ss_begin_position(kiwiSsH, C.int(i)))
 		end := int(C.kiwi_ss_end_position(kiwiSsH, C.int(i)))
 		res[i] = SplitResult{
-			Text:   text[begin:end],
-			Begin:  begin,
-			End:    end,
-			Tokens: nil,
+			Text:  text[begin:end],
+			Begin: begin,
+			End:   end,
 		}
 	}
 
