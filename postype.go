@@ -11,46 +11,21 @@ const (
 	POS_NNG POSType = "NNG"
 	POS_NNP POSType = "NNP"
 	POS_NNB POSType = "NNB"
+	POS_NR  POSType = "NR"
+	POS_NP  POSType = "NP"
 
-	POS_VV POSType = "VV"
-	POS_VA POSType = "VA"
-
-	POS_MAG POSType = "MAG"
-
-	POS_NR POSType = "NR"
-	POS_NP POSType = "NP"
-
-	POS_VX POSType = "VX"
-
-	POS_MM  POSType = "MM"
-	POS_MAJ POSType = "MAJ"
-
-	POS_IC POSType = "IC"
-
-	POS_XPN POSType = "XPN"
-	POS_XSN POSType = "XSN"
-	POS_XSV POSType = "XSV"
-	POS_XSA POSType = "XSA"
-	POS_XR  POSType = "XR"
-
+	POS_VV  POSType = "VV"
+	POS_VA  POSType = "VA"
+	POS_VX  POSType = "VX"
 	POS_VCP POSType = "VCP"
 	POS_VCN POSType = "VCN"
 
-	POS_SF POSType = "SF"
-	POS_SP POSType = "SP"
-	POS_SS POSType = "SS"
-	POS_SE POSType = "SE"
-	POS_SO POSType = "SO"
-	POS_SW POSType = "SW"
+	POS_MM POSType = "MM"
 
-	POS_SL POSType = "SL"
-	POS_SH POSType = "SH"
-	POS_SN POSType = "SN"
+	POS_MAG POSType = "MAG"
+	POS_MAJ POSType = "MAJ"
 
-	POS_W_URL     POSType = "W_URL"
-	POS_W_EMAIL   POSType = "W_EMAIL"
-	POS_W_MENTION POSType = "W_MENTION"
-	POS_W_HASHTAG POSType = "W_HASHTAG"
+	POS_IC POSType = "IC"
 
 	POS_JKS POSType = "JKS"
 	POS_JKC POSType = "JKC"
@@ -68,46 +43,65 @@ const (
 	POS_ETN POSType = "ETN"
 	POS_ETM POSType = "ETM"
 
-	POS_V POSType = "V"
+	POS_XPN POSType = "XPN"
 
-	POS_MAX POSType = "MAX"
+	POS_XSN POSType = "XSN"
+	POS_XSV POSType = "XSV"
+	POS_XSA POSType = "XSA"
+	POS_XSM POSType = "XSM"
+
+	POS_XR POSType = "XR"
+
+	POS_SF  POSType = "SF"
+	POS_SP  POSType = "SP"
+	POS_SS  POSType = "SS"
+	POS_SSO POSType = "SSO"
+	POS_SSC POSType = "SSC"
+	POS_SE  POSType = "SE"
+	POS_SO  POSType = "SO"
+	POS_SW  POSType = "SW"
+	POS_SL  POSType = "SL"
+	POS_SH  POSType = "SH"
+	POS_SN  POSType = "SN"
+	POS_SB  POSType = "SB"
+
+	POS_UN POSType = "UN"
+
+	POS_W_URL     POSType = "W_URL"
+	POS_W_EMAIL   POSType = "W_EMAIL"
+	POS_W_HASHTAG POSType = "W_HASHTAG"
+	POS_W_MENTION POSType = "W_MENTION"
+	POS_W_SERIAL  POSType = "W_SERIAL"
+	POS_W_EMOJI   POSType = "W_EMOJI"
+
+	POS_Z_CODA POSType = "Z_CODA"
+	POS_Z_SIOT POSType = "Z_SIOT"
+
+	POS_USER_0 POSType = "USER0"
+	POS_USER_1 POSType = "USER1"
+	POS_USER_2 POSType = "USER2"
+	POS_USER_3 POSType = "USER3"
+	POS_USER_4 POSType = "USER4"
 )
 
 func (p POSType) isValid() bool {
 	switch p {
-	case POS_UNKNOWN,
+	case
+		POS_UNKNOWN,
 		POS_NNG,
 		POS_NNP,
 		POS_NNB,
-		POS_VV,
-		POS_VA,
-		POS_MAG,
 		POS_NR,
 		POS_NP,
+		POS_VV,
+		POS_VA,
 		POS_VX,
-		POS_MM,
-		POS_MAJ,
-		POS_IC,
-		POS_XPN,
-		POS_XSN,
-		POS_XSV,
-		POS_XSA,
-		POS_XR,
 		POS_VCP,
 		POS_VCN,
-		POS_SF,
-		POS_SP,
-		POS_SS,
-		POS_SE,
-		POS_SO,
-		POS_SW,
-		POS_SL,
-		POS_SH,
-		POS_SN,
-		POS_W_URL,
-		POS_W_EMAIL,
-		POS_W_MENTION,
-		POS_W_HASHTAG,
+		POS_MM,
+		POS_MAG,
+		POS_MAJ,
+		POS_IC,
 		POS_JKS,
 		POS_JKC,
 		POS_JKG,
@@ -122,8 +116,38 @@ func (p POSType) isValid() bool {
 		POS_EC,
 		POS_ETN,
 		POS_ETM,
-		POS_V,
-		POS_MAX:
+		POS_XPN,
+		POS_XSN,
+		POS_XSV,
+		POS_XSA,
+		POS_XSM,
+		POS_XR,
+		POS_SF,
+		POS_SP,
+		POS_SS,
+		POS_SSO,
+		POS_SSC,
+		POS_SE,
+		POS_SO,
+		POS_SW,
+		POS_SL,
+		POS_SH,
+		POS_SN,
+		POS_SB,
+		POS_UN,
+		POS_W_URL,
+		POS_W_EMAIL,
+		POS_W_HASHTAG,
+		POS_W_MENTION,
+		POS_W_SERIAL,
+		POS_W_EMOJI,
+		POS_Z_CODA,
+		POS_Z_SIOT,
+		POS_USER_0,
+		POS_USER_1,
+		POS_USER_2,
+		POS_USER_3,
+		POS_USER_4:
 		return true
 	default:
 		return false

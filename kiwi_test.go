@@ -9,7 +9,7 @@ import (
 )
 
 func TestKiwiVersion(t *testing.T) {
-	assert.Equal(t, KiwiVersion(), "0.10.3")
+	assert.Equal(t, KiwiVersion(), "0.21.0")
 }
 
 func TestAnalyze(t *testing.T) {
@@ -50,12 +50,12 @@ func TestAnalyze(t *testing.T) {
 					Form:     "시",
 				},
 				{
-					Position: 12,
+					Position: 11,
 					Tag:      POS_EF,
 					Form:     "ᆫ다",
 				},
 			},
-			Score: -38.967132568359375,
+			Score: -34.55623,
 		},
 	}
 

@@ -11,15 +11,19 @@ elif [ "$(uname)" == "Windows" ]; then
   OS='win'
 fi
 
+if [ "$(uname -m)" == "arm64" ]; then
+  ARCH="arm64"
+else
+  ARCH="x86_64"
+fi
+
 echo "set OS env to ${OS:?}"
 echo "installing Kiwi version ${KIWI_VERSION:?}"
 
-wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/${KIWI_VERSION}/kiwi_${OS}_x86_64_${KIWI_VERSION}.tgz" &&
-  tar xzvf kiwi.tgz &&
-  sudo mv build/libkiwi* /usr/local/lib/ &&
+wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/${KIWI_VERSION}/kiwi_${OS}_${ARCH}_${KIWI_VERSION}.tgz" &&
+  sudo mkdir -p /usr/local/kiwi &&
+  sudo tar xzvf kiwi.tgz &&
+  sudo cp lib/libkiwi* /usr/local/lib &&
+  sudo cp -rf include/kiwi /usr/local/include &&
   [[ "$(uname)" == "Linux" ]] && sudo ldconfig || echo 'skip' &&
-  rm -rf kiwi.tgz build &&
-  wget -O source.tgz https://github.com/bab2min/Kiwi/archive/refs/tags/${KIWI_VERSION}.tar.gz &&
-  tar xzvf source.tgz &&
-  sudo cp -r Kiwi-${KIWI_VERSION/v/}/include/kiwi /usr/local/include/ &&
-  rm -rf source.tgz Kiwi-*
+  rm -rf kiwi.tgz bin lib include

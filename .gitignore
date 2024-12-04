@@ -19,3 +19,5 @@ __debug_bin
 
 ModelGenerator/
 .idea/
+models/
+include/
