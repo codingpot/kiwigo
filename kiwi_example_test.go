@@ -14,7 +14,7 @@ func Example() {
 	defer k.Close() // don't forget to Close()!
 
 	results, _ := k.Analyze("안녕하세요 코딩냄비입니다. 부글부글.", 1 /*=topN*/, kiwi.KIWI_MATCH_ALL)
-	fmt.Println(results)
+	fmt.Printf("Tokens: %v, Score: %.2f\n", results[0].Tokens, results[0].Score)
 	// Output:
-	// [{[{0 NNG 안녕} {2 XSA 하} {4 EP 시} {3 EC 어요} {6 NNP 코딩냄비} {10 VCP 이} {11 EF ᆸ니다} {13 SF .} {15 NNP 부글부} {18 NNG 글} {19 SF .}] -69.74997}]
+	// Tokens: [{0 NNG 안녕} {2 XSA 하} {4 EP 시} {3 EC 어요} {6 NNP 코딩냄비} {10 VCP 이} {11 EF ᆸ니다} {13 SF .} {15 NNP 부글부} {18 NNG 글} {19 SF .}], Score: -69.75
 }

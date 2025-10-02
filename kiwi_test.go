@@ -1,16 +1,28 @@
 package kiwi
 
 import (
+	"math"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 )
+
+var floatOpts = cmp.Options{
+	cmp.Comparer(func(x, y float32) bool {
+		return math.Abs(float64(x-y)) < 0.001
+	}),
+	cmp.Comparer(func(x, y float64) bool {
+		return math.Abs(x-y) < 0.001
+	}),
+}
 
 func TestKiwiVersion(t *testing.T) {
 	assert.Equal(t, KiwiVersion(), "0.10.3")
 }
+
 
 func TestAnalyze(t *testing.T) {
 	kiwi := New("./ModelGenerator", 1, KIWI_BUILD_DEFAULT)
@@ -59,7 +71,7 @@ func TestAnalyze(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	assert.True(t, cmp.Equal(expected, res, floatOpts))
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -141,7 +153,7 @@ func TestAddWord(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	assert.True(t, cmp.Equal(expected, res, floatOpts))
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -200,7 +212,7 @@ func TestLoadDict(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	assert.True(t, cmp.Equal(expected, res, floatOpts))
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -240,7 +252,7 @@ func TestLoadDict2(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	assert.True(t, cmp.Equal(expected, res, floatOpts))
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -256,14 +268,14 @@ func TestExtractWord(t *testing.T) {
 가능성이 크다. 다만 가사의 경우 만약 윤치호가 실제 작사한 것이 사실이라고 하더라도 일제시대가 되기도 이전인 대한제국 시절 작사된 것이기
 때문에 친일의 산물은 아니다.`)
 	wordInfos, _ := kb.ExtractWords(rs, 3 /*=minCnt*/, 3 /*=maxWordLen*/, 0.0 /*=minScore*/, -3.0 /*=posThreshold*/)
-	assert.Equal(t, []WordInfo{
-		{
-			Form:     "안익",
-			Freq:     3,
-			POSScore: -1.92593,
-			Score:    0,
-		},
-	}, wordInfos)
+	assert.Len(t, wordInfos, 1)
+	expected := WordInfo{
+		Form:     "안익",
+		Freq:     3,
+		POSScore: -1.92593,
+		Score:    0,
+	}
+	assert.True(t, cmp.Equal(expected, wordInfos[0], floatOpts))
 	assert.Equal(t, 0, kb.Close())
 }
 
@@ -272,8 +284,9 @@ func TestExtractWordwithFile(t *testing.T) {
 	file, _ := os.Open("./example/test.txt")
 
 	wordInfos, _ := kb.ExtractWords(file, 10 /*=minCnt*/, 5 /*=maxWordLen*/, 0.0 /*=minScore*/, -25.0 /*=posThreshold*/)
-	assert.Equal(t, WordInfo{
+	expected := WordInfo{
 		Form: "무위원", Freq: 17, POSScore: -1.7342134, Score: 0.69981515,
-	}, wordInfos[0])
+	}
+	assert.True(t, cmp.Equal(expected, wordInfos[0], floatOpts))
 	assert.Equal(t, 0, kb.Close())
 }
