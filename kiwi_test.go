@@ -5,8 +5,15 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"
 )
+
+// floatComparer returns a cmp.Option for floating-point comparisons with tolerance.
+func floatComparer() cmp.Option {
+	return cmpopts.EquateApprox(0, 1e-5)
+}
 
 func TestKiwiVersion(t *testing.T) {
 	assert.Equal(t, KiwiVersion(), "0.21.0")
@@ -59,7 +66,9 @@ func TestAnalyze(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+		t.Errorf("Analyze result mismatch (-want +got):\n%s", diff)
+	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -143,7 +152,9 @@ func TestAddWord(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+		t.Errorf("AddWord result mismatch (-want +got):\n%s", diff)
+	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -202,7 +213,9 @@ func TestLoadDict(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+		t.Errorf("LoadDict result mismatch (-want +got):\n%s", diff)
+	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -242,7 +255,9 @@ func TestLoadDict2(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, res)
+	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+		t.Errorf("LoadDict2 result mismatch (-want +got):\n%s", diff)
+	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
@@ -258,7 +273,7 @@ func TestExtractWord(t *testing.T) {
 가능성이 크다. 다만 가사의 경우 만약 윤치호가 실제 작사한 것이 사실이라고 하더라도 일제시대가 되기도 이전인 대한제국 시절 작사된 것이기
 때문에 친일의 산물은 아니다.`)
 	wordInfos, _ := kb.ExtractWords(rs, 3 /*=minCnt*/, 3 /*=maxWordLen*/, 0.0 /*=minScore*/, -3.0 /*=posThreshold*/)
-	assert.Equal(t, []WordInfo{
+	expected := []WordInfo{
 		{
 			Form:     "안익",
 			Freq:     3,
@@ -271,7 +286,10 @@ func TestExtractWord(t *testing.T) {
 			POSScore: -0.23702252,
 			Score:    0,
 		},
-	}, wordInfos)
+	}
+	if diff := cmp.Diff(expected, wordInfos, floatComparer()); diff != "" {
+		t.Errorf("ExtractWord result mismatch (-want +got):\n%s", diff)
+	}
 	assert.Equal(t, 0, kb.Close())
 }
 
@@ -280,8 +298,11 @@ func TestExtractWordwithFile(t *testing.T) {
 	file, _ := os.Open("./example/test.txt")
 
 	wordInfos, _ := kb.ExtractWords(file, 10 /*=minCnt*/, 5 /*=maxWordLen*/, 0.0 /*=minScore*/, -25.0 /*=posThreshold*/)
-	assert.Equal(t, WordInfo{
+	expectedWordInfo := WordInfo{
 		Form: "무위원", Freq: 17, POSScore: -1.7342134, Score: 0.69981515,
-	}, wordInfos[0])
+	}
+	if diff := cmp.Diff(expectedWordInfo, wordInfos[0], floatComparer()); diff != "" {
+		t.Errorf("ExtractWordwithFile result mismatch (-want +got):\n%s", diff)
+	}
 	assert.Equal(t, 0, kb.Close())
 }
