@@ -8,12 +8,9 @@ if [ "$(uname)" == "Linux" ]; then
   ARCH='x86_64'
 elif [ "$(uname)" == "Darwin" ]; then
   OS='mac'
-  # Check if this is Apple Silicon (ARM64) or Intel (x86_64)
-  if [ "$(uname -m)" == "arm64" ]; then
-    ARCH='arm64'
-  else
-    ARCH='x86_64'
-  fi
+  # For v0.10.3, only x86_64 build is available for macOS
+  # ARM64 Macs will use x86_64 build with Rosetta translation
+  ARCH='x86_64'
 elif [ "$(uname)" == "Windows" ]; then
   OS='win'
   ARCH='x86_64'
