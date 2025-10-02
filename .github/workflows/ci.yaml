@@ -20,5 +20,23 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - uses: actions/checkout@v4
-      - run: make install-kiwi
-      - run: make test
+      - name: Install Kiwi dependencies
+        run: |
+          echo "Installing Kiwi C library..."
+          make install-kiwi
+          echo "Verifying installation..."
+          if [ ! -d "/usr/local/include/kiwi" ]; then
+            echo "ERROR: Kiwi headers not found at /usr/local/include/kiwi/"
+            echo "Installation failed - headers were not properly installed"
+            exit 1
+          fi
+          if ! ls /usr/local/lib/libkiwi* > /dev/null 2>&1; then
+            echo "ERROR: Kiwi libraries not found at /usr/local/lib/libkiwi*"
+            echo "Installation failed - libraries were not properly installed"
+            exit 1
+          fi
+          echo "✓ Kiwi installation verified successfully"
+          ls -la /usr/local/include/kiwi/
+          ls -la /usr/local/lib/libkiwi*
+      - name: Run tests
+        run: make test
