@@ -21,9 +21,6 @@ echo "set OS env to ${OS:?}"
 echo "installing Kiwi version ${KIWI_VERSION:?}"
 
 wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/${KIWI_VERSION}/kiwi_${OS}_${ARCH}_${KIWI_VERSION}.tgz" &&
-  sudo mkdir -p /usr/local/kiwi &&
-  sudo tar xzvf kiwi.tgz &&
-  sudo cp lib/libkiwi* /usr/local/lib &&
-  sudo cp -rf include/kiwi /usr/local/include &&
+  sudo tar xzvf kiwi.tgz -C /usr/local &&
   [[ "$(uname)" == "Linux" ]] && sudo ldconfig || echo 'skip' &&
-  rm -rf kiwi.tgz bin lib include
+  rm -f kiwi.tgz

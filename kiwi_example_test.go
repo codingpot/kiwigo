@@ -7,7 +7,7 @@ import (
 )
 
 func Example() {
-	kb := kiwi.NewBuilder("./ModelGenerator", 1 /*=numThread*/, kiwi.KIWI_BUILD_INTEGRATE_ALLOMORPH /*=options*/)
+	kb := kiwi.NewBuilder("./base", 1 /*=numThread*/, kiwi.KIWI_BUILD_INTEGRATE_ALLOMORPH /*=options*/)
 	kb.AddWord("코딩냄비", "NNP", 0)
 
 	k := kb.Build()

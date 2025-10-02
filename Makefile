@@ -1,12 +1,12 @@
-KIWI_VERSION := "v0.21.0"
+KIWI_VERSION := v0.21.0
 
 .PHONY: test
-test: ModelGenerator/default.dict
-	go test -count=1 ./...
+test: base/default.dict
+	go test ./...
 
-ModelGenerator/default.dict:
+base/default.dict:
 	curl -L https://github.com/bab2min/Kiwi/releases/download/$(KIWI_VERSION)/kiwi_model_$(KIWI_VERSION)_base.tgz --output model.tgz
-	tar -xzvf model.tgz
+	tar --no-same-owner -xzvf model.tgz
 	rm -f model.tgz
 
 
@@ -17,7 +17,7 @@ install-kiwi:
 .PHONY: clean
 clean:
 	rm -f model.tgz
-	rm -rf ./ModelGenerator
+	rm -rf ./base
 
 .PHONY: format
 format:
