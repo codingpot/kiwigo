@@ -15,7 +15,8 @@ func TestRewindScanner_Rewind(t *testing.T) {
 	scanner.Scan()
 	assert.Equal(t, "안녕하세요", scanner.Text())
 
-	scanner.Rewind()
+	err := scanner.Rewind()
+	assert.NoError(t, err)
 	scanner.Scan()
 	assert.Equal(t, "안녕하세요", scanner.Text())
 }

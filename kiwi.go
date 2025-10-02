@@ -222,7 +222,9 @@ func KiwiReaderImpl(lineNumber C.int, buffer *C.char, userData unsafe.Pointer) C
 
 	if buffer == nil {
 		if lineNumber == 0 {
-			scanner.Rewind()
+			if err := scanner.Rewind(); err != nil {
+				return C.int(-1) // Return error code
+			}
 		}
 
 		if !scanner.Scan() {

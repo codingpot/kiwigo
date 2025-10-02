@@ -23,7 +23,6 @@ func TestKiwiVersion(t *testing.T) {
 	assert.Equal(t, KiwiVersion(), "0.10.3")
 }
 
-
 func TestAnalyze(t *testing.T) {
 	kiwi := New("./ModelGenerator", 1, KIWI_BUILD_DEFAULT)
 	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)

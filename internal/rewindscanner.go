@@ -12,9 +12,13 @@ type RewindScanner struct {
 }
 
 // Rewind rewinds the underlying reader to the beginning.
-func (s *RewindScanner) Rewind() {
-	s.readSeeker.Seek(0, io.SeekStart)
+func (s *RewindScanner) Rewind() error {
+	_, err := s.readSeeker.Seek(0, io.SeekStart)
+	if err != nil {
+		return err
+	}
 	s.scanner = bufio.NewScanner(s.readSeeker)
+	return nil
 }
 
 func (s *RewindScanner) Scan() bool {
