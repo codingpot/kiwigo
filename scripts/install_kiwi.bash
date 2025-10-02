@@ -5,16 +5,25 @@ KIWI_VERSION="$1"
 
 if [ "$(uname)" == "Linux" ]; then
   OS='lnx'
+  ARCH='x86_64'
 elif [ "$(uname)" == "Darwin" ]; then
   OS='mac'
+  # Check if this is Apple Silicon (ARM64) or Intel (x86_64)
+  if [ "$(uname -m)" == "arm64" ]; then
+    ARCH='arm64'
+  else
+    ARCH='x86_64'
+  fi
 elif [ "$(uname)" == "Windows" ]; then
   OS='win'
+  ARCH='x86_64'
 fi
 
 echo "set OS env to ${OS:?}"
+echo "set ARCH env to ${ARCH:?}"
 echo "installing Kiwi version ${KIWI_VERSION:?}"
 
-wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/${KIWI_VERSION}/kiwi_${OS}_x86_64_${KIWI_VERSION}.tgz" &&
+wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/${KIWI_VERSION}/kiwi_${OS}_${ARCH}_${KIWI_VERSION}.tgz" &&
   tar xzvf kiwi.tgz &&
   sudo mkdir -p /usr/local/lib /usr/local/include &&
   sudo mv build/libkiwi* /usr/local/lib/ &&
