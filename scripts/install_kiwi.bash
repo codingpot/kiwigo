@@ -16,6 +16,7 @@ echo "installing Kiwi version ${KIWI_VERSION:?}"
 
 wget -O kiwi.tgz "https://github.com/bab2min/Kiwi/releases/download/${KIWI_VERSION}/kiwi_${OS}_x86_64_${KIWI_VERSION}.tgz" &&
   tar xzvf kiwi.tgz &&
+  sudo mkdir -p /usr/local/lib /usr/local/include &&
   sudo mv build/libkiwi* /usr/local/lib/ &&
   [[ "$(uname)" == "Linux" ]] && sudo ldconfig || echo 'skip' &&
   rm -rf kiwi.tgz build &&
