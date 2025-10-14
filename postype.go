@@ -5,6 +5,9 @@ import "fmt"
 type POSType string
 
 // NOTE: update isValid function when adding a new POSType.
+// POS type definitions from Kiwi C++ library:
+// - Type https://github.com/bab2min/Kiwi/blob/18b4062f98cf3beaedac149fc511a2708891f71d/include/kiwi/Types.h#L188-L219
+// - String https://github.com/bab2min/Kiwi/blob/18b4062f98cf3beaedac149fc511a2708891f71d/src/Utils.cpp#L300
 const (
 	POS_UNKNOWN POSType = "UN"
 
