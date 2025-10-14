@@ -6,7 +6,7 @@ type POSType string
 
 // NOTE: update isValid function when adding a new POSType.
 const (
-	POS_UNKNOWN POSType = "UNKNOWN"
+	POS_UNKNOWN POSType = "UN"
 
 	POS_NNG POSType = "NNG"
 	POS_NNP POSType = "NNP"
@@ -65,8 +65,6 @@ const (
 	POS_SN  POSType = "SN"
 	POS_SB  POSType = "SB"
 
-	POS_UN POSType = "UN"
-
 	POS_W_URL     POSType = "W_URL"
 	POS_W_EMAIL   POSType = "W_EMAIL"
 	POS_W_HASHTAG POSType = "W_HASHTAG"
@@ -82,6 +80,18 @@ const (
 	POS_USER_2 POSType = "USER2"
 	POS_USER_3 POSType = "USER3"
 	POS_USER_4 POSType = "USER4"
+
+	POS_VV_I  POSType = "VV-I"
+	POS_VA_I  POSType = "VA-I"
+	POS_VX_I  POSType = "VX-I"
+	POS_XSA_I POSType = "XSA-I"
+
+	POS_VV_R  POSType = "VV-R"
+	POS_VA_R  POSType = "VA-R"
+	POS_VX_R  POSType = "VX-R"
+	POS_XSA_R POSType = "XSA-R"
+
+	POS_V POSType = "V"
 )
 
 func (p POSType) isValid() bool {
@@ -134,7 +144,6 @@ func (p POSType) isValid() bool {
 		POS_SH,
 		POS_SN,
 		POS_SB,
-		POS_UN,
 		POS_W_URL,
 		POS_W_EMAIL,
 		POS_W_HASHTAG,
@@ -147,7 +156,16 @@ func (p POSType) isValid() bool {
 		POS_USER_1,
 		POS_USER_2,
 		POS_USER_3,
-		POS_USER_4:
+		POS_USER_4,
+		POS_VV_I,
+		POS_VA_I,
+		POS_VX_I,
+		POS_XSA_I,
+		POS_VV_R,
+		POS_VA_R,
+		POS_VX_R,
+		POS_XSA_R,
+		POS_V:
 		return true
 	default:
 		return false
