@@ -7,13 +7,13 @@ import (
 )
 
 func Example() {
-	kb := kiwi.NewBuilder("./base", 1 /*=numThread*/, kiwi.KIWI_BUILD_INTEGRATE_ALLOMORPH /*=options*/)
+	kb := kiwi.NewBuilder("./base", kiwi.WithNumThread(1), kiwi.WithBuildOption(kiwi.KIWI_BUILD_INTEGRATE_ALLOMORPH))
 	kb.AddWord("코딩냄비", "NNP", 0)
 
 	k := kb.Build()
 	defer k.Close() // don't forget to Close()!
 
-	results, _ := k.Analyze("안녕하세요 코딩냄비입니다. 부글부글.", 1 /*=topN*/, kiwi.KIWI_MATCH_ALL)
+	results, _ := k.Analyze("안녕하세요 코딩냄비입니다. 부글부글.")
 
 	// Print tokens without the score to avoid floating-point output issues
 	if len(results) > 0 {

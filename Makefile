@@ -1,4 +1,4 @@
-KIWI_VERSION := v0.21.0
+KIWI_VERSION := v0.23.0
 
 .PHONY: test
 test: base/default.dict
@@ -7,7 +7,8 @@ test: base/default.dict
 base/default.dict:
 	curl -L https://github.com/bab2min/Kiwi/releases/download/$(KIWI_VERSION)/kiwi_model_$(KIWI_VERSION)_base.tgz --output model.tgz
 	tar --no-same-owner -xzvf model.tgz
-	rm -f model.tgz
+	mv models/cong/base ./base
+	rm -rf models model.tgz
 
 
 .PHONY: install-kiwi

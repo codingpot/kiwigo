@@ -33,18 +33,124 @@ const (
 	KIWI_BUILD_DEFAULT             BuildOption = C.KIWI_BUILD_DEFAULT
 )
 
-// AnalyzeOption is a bitwise OR of the KiwiAnalyzeOption values.
-type AnalyzeOption int
+// MatchOption is a bitwise OR of the KiwiMatchOption values.
+type MatchOption int
 
 const (
-	KIWI_MATCH_URL                  AnalyzeOption = C.KIWI_MATCH_URL
-	KIWI_MATCH_EMAIL                AnalyzeOption = C.KIWI_MATCH_EMAIL
-	KIWI_MATCH_HASHTAG              AnalyzeOption = C.KIWI_MATCH_HASHTAG
-	KIWI_MATCH_MENTION              AnalyzeOption = C.KIWI_MATCH_MENTION
-	KIWI_MATCH_ALL                  AnalyzeOption = C.KIWI_MATCH_ALL
-	KIWI_MATCH_NORMALIZE_CODA       AnalyzeOption = C.KIWI_MATCH_NORMALIZE_CODA
-	KIWI_MATCH_ALL_WITH_NORMALIZING AnalyzeOption = C.KIWI_MATCH_ALL_WITH_NORMALIZING
+	KIWI_MATCH_URL                  MatchOption = C.KIWI_MATCH_URL
+	KIWI_MATCH_EMAIL                MatchOption = C.KIWI_MATCH_EMAIL
+	KIWI_MATCH_HASHTAG              MatchOption = C.KIWI_MATCH_HASHTAG
+	KIWI_MATCH_MENTION              MatchOption = C.KIWI_MATCH_MENTION
+	KIWI_MATCH_ALL                  MatchOption = C.KIWI_MATCH_ALL
+	KIWI_MATCH_NORMALIZE_CODA       MatchOption = C.KIWI_MATCH_NORMALIZE_CODA
+	KIWI_MATCH_ALL_WITH_NORMALIZING MatchOption = C.KIWI_MATCH_ALL_WITH_NORMALIZING
 )
+
+// Dialect represents a dialect in the Kiwi API.
+type Dialect int
+
+const (
+	// Default values derived from Kiwi C-API defaults (include/kiwi/capi.h).
+	// For detailed information on these parameters, refer to:
+	// https://github.com/bab2min/Kiwi/blob/main/include/kiwi/capi.h
+	DialectStandard   Dialect = 0 // KIWI_DIALECT_STANDARD
+	DialectGyeonggi   Dialect = 1 << 0
+	DialectChungcheong Dialect = 1 << 1
+	DialectGangwon    Dialect = 1 << 2
+	DialectGyeongsang Dialect = 1 << 3
+	DialectJeolla     Dialect = 1 << 4
+	DialectJeju       Dialect = 1 << 5
+	DialectHwanghae   Dialect = 1 << 6
+	DialectHamgyeong  Dialect = 1 << 7
+	DialectPyeongan   Dialect = 1 << 8
+	DialectArchaic    Dialect = 1 << 9
+	DialectAll        Dialect = (1 << 9) * 2 - 1
+
+	DefaultDialectCost    float32 = 3.0 // Default penalty for dialect words (dialect_cost)
+	DefaultTypoThreshold  float32 = 2.5 // Default cost threshold for typo correction (typo_threshold)
+	DefaultNumThread      int     = 0   // Default number of threads (0 means auto-detect based on CPU cores)
+	DefaultTopN           int     = 1   // Default number of results to return from Analyze
+)
+
+// Option represents a configuration function for Kiwi initialization.
+type Option func(*kiwiOptions)
+
+type kiwiOptions struct {
+	buildOptions BuildOption
+	dialects     Dialect
+	numThread    int
+}
+
+// WithBuildOption sets the BuildOption for initialization.
+func WithBuildOption(options BuildOption) Option {
+	return func(opts *kiwiOptions) {
+		opts.buildOptions = options
+	}
+}
+
+// WithDialect sets the allowed dialects for initialization.
+func WithDialect(dialects Dialect) Option {
+	return func(opts *kiwiOptions) {
+		opts.dialects = dialects
+	}
+}
+
+// WithNumThread sets the number of threads for initialization.
+// A value of 0 tells Kiwi to automatically use all available CPU cores.
+func WithNumThread(threads int) Option {
+	return func(opts *kiwiOptions) {
+		opts.numThread = threads
+	}
+}
+
+// AnalyzeOptionFunc represents a configuration function for Analyze.
+type AnalyzeOptionFunc func(*AnalyzeOptions)
+
+// WithMatchOption sets the MatchOption for Analyze.
+func WithMatchOption(options MatchOption) AnalyzeOptionFunc {
+	return func(opts *AnalyzeOptions) {
+		opts.MatchOptions = options
+	}
+}
+
+// WithDialectCost sets the dialect cost for Analyze.
+func WithDialectCost(cost float32) AnalyzeOptionFunc {
+	return func(opts *AnalyzeOptions) {
+		opts.DialectCost = cost
+	}
+}
+
+// WithTypoThreshold sets the typo threshold for Analyze.
+func WithTypoThreshold(threshold float32) AnalyzeOptionFunc {
+	return func(opts *AnalyzeOptions) {
+		opts.TypoThreshold = threshold
+	}
+}
+
+// WithTopN sets the maximum number of results to return from Analyze.
+func WithTopN(n int) AnalyzeOptionFunc {
+	return func(opts *AnalyzeOptions) {
+		opts.TopN = n
+	}
+}
+
+// AnalyzeOptions provides configuration for the Analyze function.
+type AnalyzeOptions struct {
+	MatchOptions  MatchOption
+	DialectCost   float32
+	TypoThreshold float32
+	TopN          int
+}
+
+// DefaultAnalyzeOptions returns the default AnalyzeOptions recommended by Kiwi.
+func DefaultAnalyzeOptions() AnalyzeOptions {
+	return AnalyzeOptions{
+		MatchOptions:  KIWI_MATCH_ALL,
+		DialectCost:   DefaultDialectCost,
+		TypoThreshold: DefaultTypoThreshold,
+		TopN:          DefaultTopN,
+	}
+}
 
 // KiwiVersion returns the version of the kiwi library.
 func KiwiVersion() string {
@@ -68,9 +174,18 @@ type Kiwi struct {
 
 // New returns a new Kiwi instance.
 // Don't forget to call Close after this.
-func New(modelPath string, numThread int, options BuildOption) *Kiwi {
+func New(modelPath string, opts ...Option) *Kiwi {
+	options := kiwiOptions{
+		buildOptions: KIWI_BUILD_DEFAULT,
+		dialects:     DialectStandard,
+		numThread:    DefaultNumThread,
+	}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
 	return &Kiwi{
-		handler: C.kiwi_init(C.CString(modelPath), C.int(numThread), C.int(options)),
+		handler: C.kiwi_init(C.CString(modelPath), C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects)),
 	}
 }
 
@@ -93,16 +208,26 @@ type TokenResult struct {
 }
 
 // Analyze returns the result of the analysis.
-func (k *Kiwi) Analyze(text string, topN int, options AnalyzeOption) ([]TokenResult, error) {
+func (k *Kiwi) Analyze(text string, opts ...AnalyzeOptionFunc) ([]TokenResult, error) {
 	var (
-		blocklist    C.kiwi_morphset_h
 		pretokenized C.kiwi_pretokenized_h
 		cText        = C.CString(text)
 	)
 
+	options := DefaultAnalyzeOptions()
+	for _, opt := range opts {
+		opt(&options)
+	}
+
 	defer C.free(unsafe.Pointer(cText))
 
-	kiwiResH := C.kiwi_analyze(k.handler, cText, C.int(topN), C.int(options), blocklist, pretokenized)
+	cOptions := C.kiwi_analyze_option_t{
+		match_options:  C.int(options.MatchOptions),
+		dialect_cost:   C.float(options.DialectCost),
+		typo_threshold: C.float(options.TypoThreshold),
+	}
+
+	kiwiResH := C.kiwi_analyze(k.handler, cText, C.int(options.TopN), cOptions, pretokenized)
 	if kiwiResH == nil {
 		return nil, fmt.Errorf("failed to analyze text")
 	}
@@ -152,7 +277,7 @@ type SplitResult struct {
 }
 
 // SplitSentence returns the line of sentences.
-func (k *Kiwi) SplitSentence(text string, options AnalyzeOption) ([]SplitResult, error) {
+func (k *Kiwi) SplitSentence(text string, options MatchOption) ([]SplitResult, error) {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))
 
@@ -207,9 +332,18 @@ type KiwiBuilder struct {
 
 // NewBuilder returns a new KiwiBuilder instance.
 // Don't forget to call Close after this.
-func NewBuilder(modelPath string, numThread int, options BuildOption) *KiwiBuilder {
+func NewBuilder(modelPath string, opts ...Option) *KiwiBuilder {
+	options := kiwiOptions{
+		buildOptions: KIWI_BUILD_DEFAULT,
+		dialects:     DialectStandard,
+		numThread:    DefaultNumThread,
+	}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
 	return &KiwiBuilder{
-		handler: C.kiwi_builder_init(C.CString(modelPath), C.int(numThread), C.int(options)),
+		handler: C.kiwi_builder_init(C.CString(modelPath), C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects)),
 	}
 }
 
