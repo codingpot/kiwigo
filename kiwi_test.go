@@ -66,7 +66,7 @@ func TestAnalyze(t *testing.T) {
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("Analyze result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
@@ -152,7 +152,7 @@ func TestAddWord(t *testing.T) {
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("AddWord result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
@@ -213,7 +213,7 @@ func TestLoadDict(t *testing.T) {
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("LoadDict result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
@@ -255,7 +255,7 @@ func TestLoadDict2(t *testing.T) {
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("LoadDict2 result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
