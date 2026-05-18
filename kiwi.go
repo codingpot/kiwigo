@@ -50,28 +50,28 @@ const (
 type Dialect int
 
 const (
-	DialectStandard   Dialect = 0 // KIWI_DIALECT_STANDARD
-	DialectGyeonggi   Dialect = 1 << 0
+	DialectStandard    Dialect = 0 // KIWI_DIALECT_STANDARD
+	DialectGyeonggi    Dialect = 1 << 0
 	DialectChungcheong Dialect = 1 << 1
-	DialectGangwon    Dialect = 1 << 2
-	DialectGyeongsang Dialect = 1 << 3
-	DialectJeolla     Dialect = 1 << 4
-	DialectJeju       Dialect = 1 << 5
-	DialectHwanghae   Dialect = 1 << 6
-	DialectHamgyeong  Dialect = 1 << 7
-	DialectPyeongan   Dialect = 1 << 8
-	DialectArchaic    Dialect = 1 << 9
-	DialectAll        Dialect = (1 << 9) * 2 - 1
+	DialectGangwon     Dialect = 1 << 2
+	DialectGyeongsang  Dialect = 1 << 3
+	DialectJeolla      Dialect = 1 << 4
+	DialectJeju        Dialect = 1 << 5
+	DialectHwanghae    Dialect = 1 << 6
+	DialectHamgyeong   Dialect = 1 << 7
+	DialectPyeongan    Dialect = 1 << 8
+	DialectArchaic     Dialect = 1 << 9
+	DialectAll         Dialect = (1<<9)*2 - 1
 )
 
 const (
 	// Default values derived from Kiwi C-API defaults (include/kiwi/capi.h).
 	// For detailed information on these parameters, refer to:
 	// https://github.com/bab2min/Kiwi/blob/main/include/kiwi/capi.h
-	DefaultDialectCost    float32 = 3.0 // Default penalty for dialect words (dialect_cost)
-	DefaultTypoThreshold  float32 = 2.5 // Default cost threshold for typo correction (typo_threshold)
-	DefaultNumThread      int     = 0   // Default number of threads (0 means auto-detect based on CPU cores)
-	DefaultTopN           int     = 1   // Default number of results to return from Analyze
+	DefaultDialectCost   float32 = 3.0 // Default penalty for dialect words (dialect_cost)
+	DefaultTypoThreshold float32 = 2.5 // Default cost threshold for typo correction (typo_threshold)
+	DefaultNumThread     int     = 0   // Default number of threads (0 means auto-detect based on CPU cores)
+	DefaultTopN          int     = 1   // Default number of results to return from Analyze
 )
 
 // Option represents a configuration function for Kiwi initialization.
@@ -428,7 +428,8 @@ func (kb *KiwiBuilder) ExtractWords(readSeeker io.ReadSeeker, minCnt int, maxWor
 		kb.handler,
 		C.kiwi_reader_t(C.KiwiReaderBridge),
 		unsafe.Pointer(h),
-		C.int(minCnt), C.int(maxWordLen), C.float(minScore), C.float(posThreshold))
+		C.int(minCnt), C.int(maxWordLen), C.float(minScore), C.float(posThreshold),
+	)
 	defer C.kiwi_ws_close(kiwiWsH)
 
 	resSize := int(C.kiwi_ws_size(kiwiWsH))
