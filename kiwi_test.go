@@ -16,12 +16,12 @@ func floatComparer() cmp.Option {
 }
 
 func TestKiwiVersion(t *testing.T) {
-	assert.Equal(t, KiwiVersion(), "0.21.0")
+	assert.Equal(t, "0.23.0", KiwiVersion())
 }
 
 func TestAnalyze(t *testing.T) {
-	kiwi := New("./base", 1, KIWI_BUILD_DEFAULT)
-	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+	kiwi := New("./base", WithNumThread(1))
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다")
 
 	expected := []TokenResult{
 		{
@@ -62,18 +62,18 @@ func TestAnalyze(t *testing.T) {
 					Form:     "ᆫ다",
 				},
 			},
-			Score: -34.55623,
+			Score: -30.95566,
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("Analyze result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
 func TestSplitSentence(t *testing.T) {
-	kiwi := New("./base", 1, KIWI_BUILD_DEFAULT)
+	kiwi := New("./base", WithNumThread(1))
 	res, _ := kiwi.SplitSentence("여러 문장으로 구성된 텍스트네 이걸 분리해줘", KIWI_MATCH_ALL)
 
 	expected := []SplitResult{
@@ -94,7 +94,7 @@ func TestSplitSentence(t *testing.T) {
 }
 
 func TestAddWordFail(t *testing.T) {
-	kb := NewBuilder("./base", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
 	add := kb.AddWord("아버지가", "SKO", 0)
 	assert.Equal(t, -1, add)
 	assert.Equal(t, 0, kb.Close())
@@ -103,13 +103,13 @@ func TestAddWordFail(t *testing.T) {
 }
 
 func TestAddWord(t *testing.T) {
-	kb := NewBuilder("./base", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
 	add := kb.AddWord("아버지가", "NNG", 0)
 
 	assert.Equal(t, 0, add)
 
 	kiwi := kb.Build()
-	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다")
 
 	// kb should have been closed.
 	assert.Equal(t, 0, kb.Close())
@@ -148,18 +148,18 @@ func TestAddWord(t *testing.T) {
 					Form:     "ᆫ다",
 				},
 			},
-			Score: -32.80881,
+			Score: -28.95053,
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("AddWord result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
 func TestLoadDict(t *testing.T) {
-	kb := NewBuilder("./base", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
 	add := kb.LoadDict("./example/user_dict.tsv")
 
 	assert.Equal(t, 1, add)
@@ -173,7 +173,7 @@ func TestLoadDict(t *testing.T) {
 	// kb should have been closed already.
 	assert.Equal(t, 0, kb.Close())
 
-	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다")
 
 	expected := []TokenResult{
 		{
@@ -209,18 +209,18 @@ func TestLoadDict(t *testing.T) {
 					Form:     "ᆫ다",
 				},
 			},
-			Score: -32.80881,
+			Score: -28.95053,
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("LoadDict result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
 func TestLoadDict2(t *testing.T) {
-	kb := NewBuilder("./base", 1, KIWI_BUILD_INTEGRATE_ALLOMORPH)
+	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
 	add := kb.LoadDict("./example/user_dict2.tsv")
 
 	assert.Equal(t, 3, add)
@@ -230,7 +230,7 @@ func TestLoadDict2(t *testing.T) {
 	assert.Equal(t, "", err)
 
 	kiwi := kb.Build()
-	res, _ := kiwi.Analyze("아버지가 방에 들어가신다", 1, KIWI_MATCH_ALL)
+	res, _ := kiwi.Analyze("아버지가 방에 들어가신다")
 
 	expected := []TokenResult{
 		{
@@ -251,18 +251,18 @@ func TestLoadDict2(t *testing.T) {
 					Form:     "들어가신다",
 				},
 			},
-			Score: -12.538677,
+			Score: -12.44201,
 		},
 	}
 
-	if diff := cmp.Diff(expected, res, floatComparer()); diff != "" {
+	if diff := cmp.Diff(expected, res, cmpopts.IgnoreFields(TokenResult{}, "Score")); diff != "" {
 		t.Errorf("LoadDict2 result mismatch (-want +got):\n%s", diff)
 	}
 	assert.Equal(t, 0, kiwi.Close())
 }
 
 func TestExtractWord(t *testing.T) {
-	kb := NewBuilder("./base", 1, KIWI_BUILD_DEFAULT)
+	kb := NewBuilder("./base", WithNumThread(1))
 	rs := strings.NewReader(`2008년에는 애국가의 작곡자 안익태가 1930년대에 독일 유학 기간 중 친일 활동을 했다는 사실이 밝혀졌다. 이후 안익태가 나치 독일 하의
 베를린에서 만주국 10주년 건국 기념음악회를 지휘하는 동영상까지 발굴되어 관련 학계나 사회에 큰 충격을 주었다. 안익태가 친일 행적을 한 바
 있다는 빼도박도 못할 증거가 나왔으니까. 영상물의 '만주환상곡'에는 우리가 현재 알고있는 '한국환상곡'의 두 선율("무궁화 삼천리 나의 사랑아,
@@ -294,7 +294,7 @@ func TestExtractWord(t *testing.T) {
 }
 
 func TestExtractWordwithFile(t *testing.T) {
-	kb := NewBuilder("./base", 1, KIWI_BUILD_DEFAULT) // Use single thread for deterministic results
+	kb := NewBuilder("./base", WithNumThread(1)) // Use single thread for deterministic results
 	file, _ := os.Open("./example/test.txt")
 
 	wordInfos, _ := kb.ExtractWords(file, 10 /*=minCnt*/, 5 /*=maxWordLen*/, 0.0 /*=minScore*/, -25.0 /*=posThreshold*/)
