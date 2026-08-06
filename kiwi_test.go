@@ -306,3 +306,59 @@ func TestExtractWordwithFile(t *testing.T) {
 	}
 	assert.Equal(t, 0, kb.Close())
 }
+
+func TestGetGlobalConfig(t *testing.T) {
+	kiwi := New("./base", WithNumThread(1))
+	defer kiwi.Close()
+
+	config := kiwi.GetGlobalConfig()
+
+	assert.True(t, config.IntegrateAllomorph)
+	assert.True(t, config.CutOffThreshold > 0)
+	assert.True(t, config.OovRuleScale > 0)
+}
+
+func TestSetGlobalConfig(t *testing.T) {
+	kiwi := New("./base", WithNumThread(1))
+	defer kiwi.Close()
+
+	originalConfig := kiwi.GetGlobalConfig()
+
+	newConfig := originalConfig
+	newConfig.CutOffThreshold = 10.0
+	kiwi.SetGlobalConfig(newConfig)
+
+	updatedConfig := kiwi.GetGlobalConfig()
+	assert.Equal(t, float32(10.0), updatedConfig.CutOffThreshold)
+
+	kiwi.SetGlobalConfig(originalConfig)
+}
+
+func TestGetSetOption(t *testing.T) {
+	kiwi := New("./base", WithNumThread(1))
+	defer kiwi.Close()
+
+	threads := kiwi.GetOption(KIWI_NUM_THREADS)
+	assert.True(t, threads >= 1)
+}
+
+func TestMatchOptionOOV(t *testing.T) {
+	kiwi := New("./base", WithNumThread(1))
+	defer kiwi.Close()
+
+	res, err := kiwi.Analyze("아버지가 방에 들어가신다", WithMatchOption(KIWI_MATCH_ALL|KIWI_MATCH_OOV_CHR_FREQ_MODEL))
+	assert.NoError(t, err)
+	assert.True(t, len(res) > 0)
+}
+
+func TestMorphset(t *testing.T) {
+	kiwi := New("./base", WithNumThread(1))
+	defer kiwi.Close()
+
+	ms := kiwi.NewMorphset()
+	defer ms.Close()
+
+	res, err := kiwi.Analyze("아버지가 방에 들어가신다", WithBlocklist(ms))
+	assert.NoError(t, err)
+	assert.True(t, len(res) > 0)
+}
