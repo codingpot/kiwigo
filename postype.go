@@ -145,6 +145,8 @@ func (p POSType) isValid() bool {
 		POS_USER3,
 		POS_USER4,
 		POS_P,
+		POS_PV,
+		POS_PA,
 		POS_VV_I,
 		POS_VA_I,
 		POS_VX_I,

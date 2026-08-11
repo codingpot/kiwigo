@@ -136,8 +136,9 @@ def generate_go_file(tags: list[dict], tag_strings: list[str], version: str) -> 
     lines.append("")
     lines.append("const (")
 
-    # Track which tags we've added
+    # Track which tags we've added and collect for alignment
     added_tags = set()
+    tag_entries = []
 
     for i, tag in enumerate(tags):
         cpp_name = tag["name"]
@@ -152,7 +153,15 @@ def generate_go_file(tags: list[dict], tag_strings: list[str], version: str) -> 
             continue
 
         added_tags.add(go_name)
-        lines.append(f'\t{go_name} POSType = "{go_value}"')
+        tag_entries.append((go_name, go_value))
+
+    # Calculate max name length for alignment
+    max_name_len = max(len(name) for name, _ in tag_entries)
+
+    # Generate aligned output
+    for go_name, go_value in tag_entries:
+        padding = " " * (max_name_len - len(go_name) + 1)
+        lines.append(f'\t{go_name}{padding}POSType = "{go_value}"')
 
     lines.append(")")
     lines.append("")
