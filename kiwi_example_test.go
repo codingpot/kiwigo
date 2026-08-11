@@ -7,7 +7,10 @@ import (
 )
 
 func Example() {
-	kb := kiwi.NewBuilder("./base", kiwi.WithNumThread(1), kiwi.WithBuildOption(kiwi.KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	kb, err := kiwi.NewBuilder("./base", kiwi.WithNumThread(1), kiwi.WithBuildOption(kiwi.KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	if err != nil {
+		panic(err)
+	}
 	kb.AddWord("코딩냄비", "NNP", 0)
 
 	k := kb.Build()

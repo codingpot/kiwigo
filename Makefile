@@ -1,4 +1,4 @@
-KIWI_VERSION := v0.23.0
+KIWI_VERSION := v0.23.2
 
 .PHONY: test
 test: base/default.dict
