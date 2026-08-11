@@ -20,8 +20,10 @@ func TestKiwiVersion(t *testing.T) {
 }
 
 func TestAnalyze(t *testing.T) {
-	kiwi := New("./base", WithNumThread(1))
-	res, _ := kiwi.Analyze("아버지가 방에 들어가신다")
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
+	res, err := kiwi.Analyze("아버지가 방에 들어가신다")
+	assert.NoError(t, err)
 
 	expected := []TokenResult{
 		{
@@ -73,8 +75,10 @@ func TestAnalyze(t *testing.T) {
 }
 
 func TestSplitSentence(t *testing.T) {
-	kiwi := New("./base", WithNumThread(1))
-	res, _ := kiwi.SplitSentence("여러 문장으로 구성된 텍스트네 이걸 분리해줘", KIWI_MATCH_ALL)
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
+	res, err := kiwi.SplitSentence("여러 문장으로 구성된 텍스트네 이걸 분리해줘", KIWI_MATCH_ALL)
+	assert.NoError(t, err)
 
 	expected := []SplitResult{
 		{
@@ -94,7 +98,8 @@ func TestSplitSentence(t *testing.T) {
 }
 
 func TestAddWordFail(t *testing.T) {
-	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	kb, err := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	assert.NoError(t, err)
 	add := kb.AddWord("아버지가", "SKO", 0)
 	assert.Equal(t, -1, add)
 	assert.Equal(t, 0, kb.Close())
@@ -103,7 +108,8 @@ func TestAddWordFail(t *testing.T) {
 }
 
 func TestAddWord(t *testing.T) {
-	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	kb, err := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	assert.NoError(t, err)
 	add := kb.AddWord("아버지가", "NNG", 0)
 
 	assert.Equal(t, 0, add)
@@ -159,14 +165,15 @@ func TestAddWord(t *testing.T) {
 }
 
 func TestLoadDict(t *testing.T) {
-	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	kb, err := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	assert.NoError(t, err)
 	add := kb.LoadDict("./example/user_dict.tsv")
 
 	assert.Equal(t, 1, add)
 
-	err := KiwiError()
+	errMsg := KiwiError()
 
-	assert.Equal(t, "", err)
+	assert.Equal(t, "", errMsg)
 
 	kiwi := kb.Build()
 
@@ -220,14 +227,15 @@ func TestLoadDict(t *testing.T) {
 }
 
 func TestLoadDict2(t *testing.T) {
-	kb := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	kb, err := NewBuilder("./base", WithNumThread(1), WithBuildOption(KIWI_BUILD_INTEGRATE_ALLOMORPH))
+	assert.NoError(t, err)
 	add := kb.LoadDict("./example/user_dict2.tsv")
 
 	assert.Equal(t, 3, add)
 
-	err := KiwiError()
+	errMsg := KiwiError()
 
-	assert.Equal(t, "", err)
+	assert.Equal(t, "", errMsg)
 
 	kiwi := kb.Build()
 	res, _ := kiwi.Analyze("아버지가 방에 들어가신다")
@@ -262,7 +270,8 @@ func TestLoadDict2(t *testing.T) {
 }
 
 func TestExtractWord(t *testing.T) {
-	kb := NewBuilder("./base", WithNumThread(1))
+	kb, err := NewBuilder("./base", WithNumThread(1))
+	assert.NoError(t, err)
 	rs := strings.NewReader(`2008년에는 애국가의 작곡자 안익태가 1930년대에 독일 유학 기간 중 친일 활동을 했다는 사실이 밝혀졌다. 이후 안익태가 나치 독일 하의
 베를린에서 만주국 10주년 건국 기념음악회를 지휘하는 동영상까지 발굴되어 관련 학계나 사회에 큰 충격을 주었다. 안익태가 친일 행적을 한 바
 있다는 빼도박도 못할 증거가 나왔으니까. 영상물의 '만주환상곡'에는 우리가 현재 알고있는 '한국환상곡'의 두 선율("무궁화 삼천리 나의 사랑아,
@@ -294,7 +303,8 @@ func TestExtractWord(t *testing.T) {
 }
 
 func TestExtractWordwithFile(t *testing.T) {
-	kb := NewBuilder("./base", WithNumThread(1)) // Use single thread for deterministic results
+	kb, err := NewBuilder("./base", WithNumThread(1)) // Use single thread for deterministic results
+	assert.NoError(t, err)
 	file, _ := os.Open("./example/test.txt")
 
 	wordInfos, _ := kb.ExtractWords(file, 10 /*=minCnt*/, 5 /*=maxWordLen*/, 0.0 /*=minScore*/, -25.0 /*=posThreshold*/)
@@ -308,7 +318,8 @@ func TestExtractWordwithFile(t *testing.T) {
 }
 
 func TestGetGlobalConfig(t *testing.T) {
-	kiwi := New("./base", WithNumThread(1))
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
 	defer kiwi.Close()
 
 	config := kiwi.GetGlobalConfig()
@@ -319,7 +330,8 @@ func TestGetGlobalConfig(t *testing.T) {
 }
 
 func TestSetGlobalConfig(t *testing.T) {
-	kiwi := New("./base", WithNumThread(1))
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
 	defer kiwi.Close()
 
 	originalConfig := kiwi.GetGlobalConfig()
@@ -335,7 +347,8 @@ func TestSetGlobalConfig(t *testing.T) {
 }
 
 func TestGetSetOption(t *testing.T) {
-	kiwi := New("./base", WithNumThread(1))
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
 	defer kiwi.Close()
 
 	threads := kiwi.GetOption(KIWI_NUM_THREADS)
@@ -343,7 +356,8 @@ func TestGetSetOption(t *testing.T) {
 }
 
 func TestMatchOptionOOV(t *testing.T) {
-	kiwi := New("./base", WithNumThread(1))
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
 	defer kiwi.Close()
 
 	// Use OOV-containing text to detect differences between OOV modes
@@ -361,7 +375,8 @@ func TestMatchOptionOOV(t *testing.T) {
 }
 
 func TestMorphset(t *testing.T) {
-	kiwi := New("./base", WithNumThread(1))
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
 	defer kiwi.Close()
 
 	ms, err := kiwi.NewMorphset()
@@ -382,4 +397,36 @@ func TestMorphset(t *testing.T) {
 	for _, token := range res[0].Tokens {
 		assert.NotEqual(t, "아버지", token.Form)
 	}
+}
+
+func TestNewFailure(t *testing.T) {
+	_, err := New("./nonexistent_path")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "kiwi_init failed")
+}
+
+func TestWithOpenEnding(t *testing.T) {
+	kiwi, err := New("./base", WithNumThread(1))
+	assert.NoError(t, err)
+	defer kiwi.Close()
+
+	res, err := kiwi.Analyze("아버지가 방에 들어가신다", WithOpenEnding(true))
+	assert.NoError(t, err)
+	assert.True(t, len(res) > 0)
+}
+
+func TestWithAllowedDialects(t *testing.T) {
+	kiwi, err := New("./base", WithNumThread(1), WithDialect(DialectGyeongsang))
+	assert.NoError(t, err)
+	defer kiwi.Close()
+
+	// Test with default dialects (should use instance setting)
+	res, err := kiwi.Analyze("아버지가 방에 들어가신다")
+	assert.NoError(t, err)
+	assert.True(t, len(res) > 0)
+
+	// Test with explicit dialect override
+	res, err = kiwi.Analyze("아버지가 방에 들어가신다", WithAllowedDialects(DialectStandard))
+	assert.NoError(t, err)
+	assert.True(t, len(res) > 0)
 }

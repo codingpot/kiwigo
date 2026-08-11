@@ -292,6 +292,10 @@ func KiwiClearError() {
 }
 
 // Kiwi is a wrapper for the kiwi C library.
+//
+// Thread Safety: Concurrent calls to Analyze are safe.
+// However, SetGlobalConfig must not be called concurrently with Analyze
+// or other methods that read the configuration.
 type Kiwi struct {
 	handler  C.kiwi_h
 	dialects Dialect
@@ -299,7 +303,7 @@ type Kiwi struct {
 
 // New returns a new Kiwi instance.
 // Don't forget to call Close after this.
-func New(modelPath string, opts ...Option) *Kiwi {
+func New(modelPath string, opts ...Option) (*Kiwi, error) {
 	options := kiwiOptions{
 		buildOptions: KIWI_BUILD_DEFAULT,
 		dialects:     DialectStandard,
@@ -309,10 +313,18 @@ func New(modelPath string, opts ...Option) *Kiwi {
 		opt(&options)
 	}
 
-	return &Kiwi{
-		handler:  C.kiwi_init(C.CString(modelPath), C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects)),
-		dialects: options.dialects,
+	cModelPath := C.CString(modelPath)
+	defer C.free(unsafe.Pointer(cModelPath))
+
+	h := C.kiwi_init(cModelPath, C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects))
+	if h == nil {
+		return nil, fmt.Errorf("kiwi_init failed: %s", KiwiError())
 	}
+
+	return &Kiwi{
+		handler:  h,
+		dialects: options.dialects,
+	}, nil
 }
 
 // TokenInfo returns the token info for the given token(Str).
@@ -476,7 +488,7 @@ type KiwiBuilder struct {
 
 // NewBuilder returns a new KiwiBuilder instance.
 // Don't forget to call Close after this.
-func NewBuilder(modelPath string, opts ...Option) *KiwiBuilder {
+func NewBuilder(modelPath string, opts ...Option) (*KiwiBuilder, error) {
 	options := kiwiOptions{
 		buildOptions: KIWI_BUILD_DEFAULT,
 		dialects:     DialectStandard,
@@ -486,19 +498,36 @@ func NewBuilder(modelPath string, opts ...Option) *KiwiBuilder {
 		opt(&options)
 	}
 
-	return &KiwiBuilder{
-		handler: C.kiwi_builder_init(C.CString(modelPath), C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects)),
+	cModelPath := C.CString(modelPath)
+	defer C.free(unsafe.Pointer(cModelPath))
+
+	h := C.kiwi_builder_init(cModelPath, C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects))
+	if h == nil {
+		return nil, fmt.Errorf("kiwi_builder_init failed: %s", KiwiError())
 	}
+
+	return &KiwiBuilder{
+		handler: h,
+	}, nil
 }
 
 // AddWord set custom word with word, pos, score.
 func (kb *KiwiBuilder) AddWord(word string, pos POSType, score float32) int {
-	return int(C.kiwi_builder_add_word(kb.handler, C.CString(word), C.CString(string(pos)), C.float(score)))
+	cWord := C.CString(word)
+	defer C.free(unsafe.Pointer(cWord))
+
+	cPos := C.CString(string(pos))
+	defer C.free(unsafe.Pointer(cPos))
+
+	return int(C.kiwi_builder_add_word(kb.handler, cWord, cPos, C.float(score)))
 }
 
 // LoadDict loads user dict with dict file path.
 func (kb *KiwiBuilder) LoadDict(dictPath string) int {
-	return int(C.kiwi_builder_load_dict(kb.handler, C.CString(dictPath)))
+	cDictPath := C.CString(dictPath)
+	defer C.free(unsafe.Pointer(cDictPath))
+
+	return int(C.kiwi_builder_load_dict(kb.handler, cDictPath))
 }
 
 // Build creates kiwi instance with user word etc.
