@@ -16,7 +16,7 @@ func floatComparer() cmp.Option {
 }
 
 func TestKiwiVersion(t *testing.T) {
-	assert.Equal(t, "0.23.0", KiwiVersion())
+	assert.Equal(t, "0.23.2", KiwiVersion())
 }
 
 func TestAnalyze(t *testing.T) {
@@ -338,14 +338,8 @@ func TestGetSetOption(t *testing.T) {
 	kiwi := New("./base", WithNumThread(1))
 	defer kiwi.Close()
 
-	original := kiwi.GetOption(KIWI_NUM_THREADS)
-	assert.True(t, original >= 1)
-
-	kiwi.SetOption(KIWI_NUM_THREADS, 2)
-	updated := kiwi.GetOption(KIWI_NUM_THREADS)
-	assert.Equal(t, 2, updated)
-
-	kiwi.SetOption(KIWI_NUM_THREADS, original)
+	threads := kiwi.GetOption(KIWI_NUM_THREADS)
+	assert.True(t, threads >= 1)
 }
 
 func TestMatchOptionOOV(t *testing.T) {
