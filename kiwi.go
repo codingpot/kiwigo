@@ -34,46 +34,67 @@ const (
 	KIWI_BUILD_LOAD_MULTI_DICT     BuildOption = C.KIWI_BUILD_LOAD_MULTI_DICT
 	KIWI_BUILD_DEFAULT             BuildOption = C.KIWI_BUILD_DEFAULT
 
-	KIWI_BUILD_MODEL_TYPE_DEFAULT      BuildOption = C.KIWI_BUILD_MODEL_TYPE_DEFAULT
-	KIWI_BUILD_MODEL_TYPE_LARGEST      BuildOption = C.KIWI_BUILD_MODEL_TYPE_LARGEST
-	KIWI_BUILD_MODEL_TYPE_KNLM         BuildOption = C.KIWI_BUILD_MODEL_TYPE_KNLM
-	KIWI_BUILD_MODEL_TYPE_SBG          BuildOption = C.KIWI_BUILD_MODEL_TYPE_SBG
-	KIWI_BUILD_MODEL_TYPE_CONG         BuildOption = C.KIWI_BUILD_MODEL_TYPE_CONG
-	KIWI_BUILD_MODEL_TYPE_CONG_GLOBAL  BuildOption = C.KIWI_BUILD_MODEL_TYPE_CONG_GLOBAL
+	// Model type is a single-select field, not a bitmask.
+	// Select exactly one of the following mutually exclusive model types:
+	//
+	//   - MODEL_TYPE_DEFAULT: default model (0x0000)
+	//   - MODEL_TYPE_LARGEST: largest available model
+	//   - MODEL_TYPE_KNLM: KNLM model (deprecated)
+	//   - MODEL_TYPE_SBG: SBG model (deprecated)
+	//   - MODEL_TYPE_CONG: CoNg model
+	//   - MODEL_TYPE_CONG_GLOBAL: CoNg global model
+	//
+	// Do NOT combine these with bitwise OR.
+	KIWI_BUILD_MODEL_TYPE_DEFAULT     BuildOption = C.KIWI_BUILD_MODEL_TYPE_DEFAULT
+	KIWI_BUILD_MODEL_TYPE_LARGEST     BuildOption = C.KIWI_BUILD_MODEL_TYPE_LARGEST
+	KIWI_BUILD_MODEL_TYPE_KNLM        BuildOption = C.KIWI_BUILD_MODEL_TYPE_KNLM
+	KIWI_BUILD_MODEL_TYPE_SBG         BuildOption = C.KIWI_BUILD_MODEL_TYPE_SBG
+	KIWI_BUILD_MODEL_TYPE_CONG        BuildOption = C.KIWI_BUILD_MODEL_TYPE_CONG
+	KIWI_BUILD_MODEL_TYPE_CONG_GLOBAL BuildOption = C.KIWI_BUILD_MODEL_TYPE_CONG_GLOBAL
 )
 
 // MatchOption is a bitwise OR of the KiwiMatchOption values.
 type MatchOption int
 
 const (
-	KIWI_MATCH_URL                  MatchOption = C.KIWI_MATCH_URL
-	KIWI_MATCH_EMAIL                MatchOption = C.KIWI_MATCH_EMAIL
-	KIWI_MATCH_HASHTAG              MatchOption = C.KIWI_MATCH_HASHTAG
-	KIWI_MATCH_MENTION              MatchOption = C.KIWI_MATCH_MENTION
-	KIWI_MATCH_SERIAL               MatchOption = C.KIWI_MATCH_SERIAL
-	KIWI_MATCH_EMOJI                MatchOption = C.KIWI_MATCH_EMOJI
+	KIWI_MATCH_URL     MatchOption = C.KIWI_MATCH_URL
+	KIWI_MATCH_EMAIL   MatchOption = C.KIWI_MATCH_EMAIL
+	KIWI_MATCH_HASHTAG MatchOption = C.KIWI_MATCH_HASHTAG
+	KIWI_MATCH_MENTION MatchOption = C.KIWI_MATCH_MENTION
+	KIWI_MATCH_SERIAL  MatchOption = C.KIWI_MATCH_SERIAL
+	KIWI_MATCH_EMOJI   MatchOption = C.KIWI_MATCH_EMOJI
 
-	KIWI_MATCH_OOV_RULE_ONLY              MatchOption = C.KIWI_MATCH_OOV_RULE_ONLY
-	KIWI_MATCH_OOV_CHR_MODEL              MatchOption = C.KIWI_MATCH_OOV_CHR_MODEL
-	KIWI_MATCH_OOV_CHR_FREQ_MODEL         MatchOption = C.KIWI_MATCH_OOV_CHR_FREQ_MODEL
-	KIWI_MATCH_OOV_CHR_FREQ_BRANCH_MODEL  MatchOption = C.KIWI_MATCH_OOV_CHR_FREQ_BRANCH_MODEL
-	KIWI_MATCH_OOV_MASK                   MatchOption = C.KIWI_MATCH_OOV_MASK
+	// OOV detection mode is a 2-bit field (bits 8-9), not independent flags.
+	// Select exactly one of the following mutually exclusive modes:
+	//
+	//   - OOV_RULE_ONLY: rule-based scoring (default, value 0 << 8)
+	//   - OOV_CHR_MODEL: character model-based scoring
+	//   - OOV_CHR_FREQ_MODEL: character + frequency model scoring
+	//   - OOV_CHR_FREQ_BRANCH_MODEL: character + frequency + branch model scoring
+	//
+	// Do NOT combine these with bitwise OR. KIWI_MATCH_OOV_MASK is for
+	// internal use and should not be selected directly.
+	KIWI_MATCH_OOV_RULE_ONLY             MatchOption = C.KIWI_MATCH_OOV_RULE_ONLY
+	KIWI_MATCH_OOV_CHR_MODEL             MatchOption = C.KIWI_MATCH_OOV_CHR_MODEL
+	KIWI_MATCH_OOV_CHR_FREQ_MODEL        MatchOption = C.KIWI_MATCH_OOV_CHR_FREQ_MODEL
+	KIWI_MATCH_OOV_CHR_FREQ_BRANCH_MODEL MatchOption = C.KIWI_MATCH_OOV_CHR_FREQ_BRANCH_MODEL
+	KIWI_MATCH_OOV_MASK                  MatchOption = C.KIWI_MATCH_OOV_MASK
 
-	KIWI_MATCH_NORMALIZE_CODA       MatchOption = C.KIWI_MATCH_NORMALIZE_CODA
-	KIWI_MATCH_JOIN_NOUN_PREFIX     MatchOption = C.KIWI_MATCH_JOIN_NOUN_PREFIX
-	KIWI_MATCH_JOIN_NOUN_SUFFIX     MatchOption = C.KIWI_MATCH_JOIN_NOUN_SUFFIX
-	KIWI_MATCH_JOIN_VERB_SUFFIX     MatchOption = C.KIWI_MATCH_JOIN_VERB_SUFFIX
-	KIWI_MATCH_JOIN_ADJ_SUFFIX      MatchOption = C.KIWI_MATCH_JOIN_ADJ_SUFFIX
-	KIWI_MATCH_JOIN_ADV_SUFFIX      MatchOption = C.KIWI_MATCH_JOIN_ADV_SUFFIX
-	KIWI_MATCH_JOIN_V_SUFFIX        MatchOption = C.KIWI_MATCH_JOIN_V_SUFFIX
-	KIWI_MATCH_JOIN_AFFIX           MatchOption = C.KIWI_MATCH_JOIN_AFFIX
-	KIWI_MATCH_SPLIT_COMPLEX        MatchOption = C.KIWI_MATCH_SPLIT_COMPLEX
-	KIWI_MATCH_Z_CODA               MatchOption = C.KIWI_MATCH_Z_CODA
-	KIWI_MATCH_COMPATIBLE_JAMO      MatchOption = C.KIWI_MATCH_COMPATIBLE_JAMO
-	KIWI_MATCH_SPLIT_SAISIOT        MatchOption = C.KIWI_MATCH_SPLIT_SAISIOT
-	KIWI_MATCH_MERGE_SAISIOT        MatchOption = C.KIWI_MATCH_MERGE_SAISIOT
-	KIWI_MATCH_JOIN_PARTICLE_YO     MatchOption = C.KIWI_MATCH_JOIN_PARTICLE_YO
-	KIWI_MATCH_USE_OLD_SPLITTER     MatchOption = C.KIWI_MATCH_USE_OLD_SPLITTER
+	KIWI_MATCH_NORMALIZE_CODA   MatchOption = C.KIWI_MATCH_NORMALIZE_CODA
+	KIWI_MATCH_JOIN_NOUN_PREFIX MatchOption = C.KIWI_MATCH_JOIN_NOUN_PREFIX
+	KIWI_MATCH_JOIN_NOUN_SUFFIX MatchOption = C.KIWI_MATCH_JOIN_NOUN_SUFFIX
+	KIWI_MATCH_JOIN_VERB_SUFFIX MatchOption = C.KIWI_MATCH_JOIN_VERB_SUFFIX
+	KIWI_MATCH_JOIN_ADJ_SUFFIX  MatchOption = C.KIWI_MATCH_JOIN_ADJ_SUFFIX
+	KIWI_MATCH_JOIN_ADV_SUFFIX  MatchOption = C.KIWI_MATCH_JOIN_ADV_SUFFIX
+	KIWI_MATCH_JOIN_V_SUFFIX    MatchOption = C.KIWI_MATCH_JOIN_V_SUFFIX
+	KIWI_MATCH_JOIN_AFFIX       MatchOption = C.KIWI_MATCH_JOIN_AFFIX
+	KIWI_MATCH_SPLIT_COMPLEX    MatchOption = C.KIWI_MATCH_SPLIT_COMPLEX
+	KIWI_MATCH_Z_CODA           MatchOption = C.KIWI_MATCH_Z_CODA
+	KIWI_MATCH_COMPATIBLE_JAMO  MatchOption = C.KIWI_MATCH_COMPATIBLE_JAMO
+	KIWI_MATCH_SPLIT_SAISIOT    MatchOption = C.KIWI_MATCH_SPLIT_SAISIOT
+	KIWI_MATCH_MERGE_SAISIOT    MatchOption = C.KIWI_MATCH_MERGE_SAISIOT
+	KIWI_MATCH_JOIN_PARTICLE_YO MatchOption = C.KIWI_MATCH_JOIN_PARTICLE_YO
+	KIWI_MATCH_USE_OLD_SPLITTER MatchOption = C.KIWI_MATCH_USE_OLD_SPLITTER
 
 	KIWI_MATCH_ALL                  MatchOption = C.KIWI_MATCH_ALL
 	KIWI_MATCH_ALL_WITH_NORMALIZING MatchOption = C.KIWI_MATCH_ALL_WITH_NORMALIZING
@@ -207,13 +228,37 @@ type Morphset struct {
 }
 
 // NewMorphset creates a new morpheme set.
-func (k *Kiwi) NewMorphset() *Morphset {
-	return &Morphset{
-		handler: C.kiwi_new_morphset(k.handler),
+// The Morphset must be closed after use, before the parent Kiwi instance is closed.
+func (k *Kiwi) NewMorphset() (*Morphset, error) {
+	h := C.kiwi_new_morphset(k.handler)
+	if h == nil {
+		return nil, fmt.Errorf("failed to create morphset: %s", KiwiError())
 	}
+	return &Morphset{handler: h}, nil
+}
+
+// Add adds a morpheme to the set.
+// tag is a POS tag such as "NNG". If tag is empty, all morphemes matching form are added.
+// Returns the number of morphemes added, or an error.
+func (ms *Morphset) Add(form string, tag string) (int, error) {
+	cForm := C.CString(form)
+	defer C.free(unsafe.Pointer(cForm))
+
+	var cTag *C.char
+	if tag != "" {
+		cTag = C.CString(tag)
+		defer C.free(unsafe.Pointer(cTag))
+	}
+
+	result := int(C.kiwi_morphset_add(ms.handler, cForm, cTag))
+	if result < 0 {
+		return 0, fmt.Errorf("failed to add morpheme: %s", KiwiError())
+	}
+	return result, nil
 }
 
 // Close frees the resources allocated for the Morphset.
+// Must be called before the parent Kiwi instance is closed.
 func (ms *Morphset) Close() {
 	if ms.handler != nil {
 		C.kiwi_morphset_close(ms.handler)
@@ -248,7 +293,8 @@ func KiwiClearError() {
 
 // Kiwi is a wrapper for the kiwi C library.
 type Kiwi struct {
-	handler C.kiwi_h
+	handler  C.kiwi_h
+	dialects Dialect
 }
 
 // New returns a new Kiwi instance.
@@ -264,7 +310,8 @@ func New(modelPath string, opts ...Option) *Kiwi {
 	}
 
 	return &Kiwi{
-		handler: C.kiwi_init(C.CString(modelPath), C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects)),
+		handler:  C.kiwi_init(C.CString(modelPath), C.int(options.numThread), C.int(options.buildOptions), C.int(options.dialects)),
+		dialects: options.dialects,
 	}
 }
 
@@ -300,6 +347,11 @@ func (k *Kiwi) Analyze(text string, opts ...AnalyzeOptionFunc) ([]TokenResult, e
 
 	defer C.free(unsafe.Pointer(cText))
 
+	allowedDialects := options.AllowedDialects
+	if allowedDialects == 0 {
+		allowedDialects = k.dialects
+	}
+
 	var blocklistHandler C.kiwi_morphset_h
 	if options.Blocklist != nil {
 		blocklistHandler = options.Blocklist.handler
@@ -314,7 +366,7 @@ func (k *Kiwi) Analyze(text string, opts ...AnalyzeOptionFunc) ([]TokenResult, e
 		match_options:    C.int(options.MatchOptions),
 		blocklist:        blocklistHandler,
 		open_ending:      C.int(openEnding),
-		allowed_dialects: C.int(options.AllowedDialects),
+		allowed_dialects: C.int(allowedDialects),
 		dialect_cost:     C.float(options.DialectCost),
 		typo_threshold:   C.float(options.TypoThreshold),
 	}
@@ -544,62 +596,62 @@ func (kb *KiwiBuilder) ExtractWords(readSeeker io.ReadSeeker, minCnt int, maxWor
 
 // Config represents the configuration for Kiwi analysis.
 type Config struct {
-	IntegrateAllomorph           bool
-	CutOffThreshold              float32
-	OovRuleScale                 float32
-	OovRuleBias                  float32
-	OovChrBias                   float32
-	OovGlobalWeight              float32
-	OovLocalWeight               float32
-	OovGlobalMinFreq             float32
-	SpacePenalty                 float32
-	TypoCostWeight               float32
-	MaxUnkFormSize               uint32
+	IntegrateAllomorph             bool
+	CutOffThreshold                float32
+	OovRuleScale                   float32
+	OovRuleBias                    float32
+	OovChrBias                     float32
+	OovGlobalWeight                float32
+	OovLocalWeight                 float32
+	OovGlobalMinFreq               float32
+	SpacePenalty                   float32
+	TypoCostWeight                 float32
+	MaxUnkFormSize                 uint32
 	MaxUnkFormSizeFollowedByJClass uint32
-	SpaceTolerance               uint32
+	SpaceTolerance                 uint32
 }
 
 // GetGlobalConfig returns the global configuration of the Kiwi instance.
 func (k *Kiwi) GetGlobalConfig() Config {
 	cConfig := C.kiwi_get_global_config(k.handler)
 	return Config{
-		IntegrateAllomorph:           cConfig.integrate_allomorph != 0,
-		CutOffThreshold:              float32(cConfig.cut_off_threshold),
-		OovRuleScale:                 float32(cConfig.oov_rule_scale),
-		OovRuleBias:                  float32(cConfig.oov_rule_bias),
-		OovChrBias:                   float32(cConfig.oov_chr_bias),
-		OovGlobalWeight:              float32(cConfig.oov_global_weight),
-		OovLocalWeight:               float32(cConfig.oov_local_weight),
-		OovGlobalMinFreq:             float32(cConfig.oov_global_min_freq),
-		SpacePenalty:                 float32(cConfig.space_penalty),
-		TypoCostWeight:               float32(cConfig.typo_cost_weight),
-		MaxUnkFormSize:               uint32(cConfig.max_unk_form_size),
+		IntegrateAllomorph:             cConfig.integrate_allomorph != 0,
+		CutOffThreshold:                float32(cConfig.cut_off_threshold),
+		OovRuleScale:                   float32(cConfig.oov_rule_scale),
+		OovRuleBias:                    float32(cConfig.oov_rule_bias),
+		OovChrBias:                     float32(cConfig.oov_chr_bias),
+		OovGlobalWeight:                float32(cConfig.oov_global_weight),
+		OovLocalWeight:                 float32(cConfig.oov_local_weight),
+		OovGlobalMinFreq:               float32(cConfig.oov_global_min_freq),
+		SpacePenalty:                   float32(cConfig.space_penalty),
+		TypoCostWeight:                 float32(cConfig.typo_cost_weight),
+		MaxUnkFormSize:                 uint32(cConfig.max_unk_form_size),
 		MaxUnkFormSizeFollowedByJClass: uint32(cConfig.max_unk_form_size_followed_by_j_class),
-		SpaceTolerance:               uint32(cConfig.space_tolerance),
+		SpaceTolerance:                 uint32(cConfig.space_tolerance),
 	}
 }
 
 // SetGlobalConfig sets the global configuration of the Kiwi instance.
 func (k *Kiwi) SetGlobalConfig(config Config) {
 	cConfig := C.kiwi_config_t{
-		integrate_allomorph:                boolToCInt(config.IntegrateAllomorph),
-		cut_off_threshold:                  C.float(config.CutOffThreshold),
-		oov_rule_scale:                     C.float(config.OovRuleScale),
-		oov_rule_bias:                      C.float(config.OovRuleBias),
-		oov_chr_bias:                       C.float(config.OovChrBias),
-		oov_global_weight:                  C.float(config.OovGlobalWeight),
-		oov_local_weight:                   C.float(config.OovLocalWeight),
-		oov_global_min_freq:                C.float(config.OovGlobalMinFreq),
-		space_penalty:                      C.float(config.SpacePenalty),
-		typo_cost_weight:                   C.float(config.TypoCostWeight),
-		max_unk_form_size:                  C.uint(config.MaxUnkFormSize),
+		integrate_allomorph:                   boolToCUint8(config.IntegrateAllomorph),
+		cut_off_threshold:                     C.float(config.CutOffThreshold),
+		oov_rule_scale:                        C.float(config.OovRuleScale),
+		oov_rule_bias:                         C.float(config.OovRuleBias),
+		oov_chr_bias:                          C.float(config.OovChrBias),
+		oov_global_weight:                     C.float(config.OovGlobalWeight),
+		oov_local_weight:                      C.float(config.OovLocalWeight),
+		oov_global_min_freq:                   C.float(config.OovGlobalMinFreq),
+		space_penalty:                         C.float(config.SpacePenalty),
+		typo_cost_weight:                      C.float(config.TypoCostWeight),
+		max_unk_form_size:                     C.uint(config.MaxUnkFormSize),
 		max_unk_form_size_followed_by_j_class: C.uint(config.MaxUnkFormSizeFollowedByJClass),
-		space_tolerance:                    C.uint(config.SpaceTolerance),
+		space_tolerance:                       C.uint(config.SpaceTolerance),
 	}
 	C.kiwi_set_global_config(k.handler, cConfig)
 }
 
-func boolToCInt(b bool) C.int {
+func boolToCUint8(b bool) C.uint8_t {
 	if b {
 		return 1
 	}
@@ -614,11 +666,15 @@ const (
 )
 
 // GetOptionF returns the float value of the specified option.
+// Note: As of Kiwi v0.23.2, there are no float options available.
+// This function is provided for future compatibility.
 func (k *Kiwi) GetOptionF(option OptionType) float32 {
 	return float32(C.kiwi_get_option_f(k.handler, C.int(option)))
 }
 
 // SetOptionF sets the float value of the specified option.
+// Note: As of Kiwi v0.23.2, there are no float options available.
+// This function is provided for future compatibility.
 func (k *Kiwi) SetOptionF(option OptionType, value float32) {
 	C.kiwi_set_option_f(k.handler, C.int(option), C.float(value))
 }

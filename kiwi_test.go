@@ -338,27 +338,54 @@ func TestGetSetOption(t *testing.T) {
 	kiwi := New("./base", WithNumThread(1))
 	defer kiwi.Close()
 
-	threads := kiwi.GetOption(KIWI_NUM_THREADS)
-	assert.True(t, threads >= 1)
+	original := kiwi.GetOption(KIWI_NUM_THREADS)
+	assert.True(t, original >= 1)
+
+	kiwi.SetOption(KIWI_NUM_THREADS, 2)
+	updated := kiwi.GetOption(KIWI_NUM_THREADS)
+	assert.Equal(t, 2, updated)
+
+	kiwi.SetOption(KIWI_NUM_THREADS, original)
 }
 
 func TestMatchOptionOOV(t *testing.T) {
 	kiwi := New("./base", WithNumThread(1))
 	defer kiwi.Close()
 
-	res, err := kiwi.Analyze("아버지가 방에 들어가신다", WithMatchOption(KIWI_MATCH_ALL|KIWI_MATCH_OOV_CHR_FREQ_MODEL))
+	// Use OOV-containing text to detect differences between OOV modes
+	text := "아버지가 방에 들어가신다"
+
+	resDefault, err := kiwi.Analyze(text, WithMatchOption(KIWI_MATCH_ALL))
 	assert.NoError(t, err)
-	assert.True(t, len(res) > 0)
+
+	resChrFreq, err := kiwi.Analyze(text, WithMatchOption(KIWI_MATCH_ALL|KIWI_MATCH_OOV_CHR_FREQ_MODEL))
+	assert.NoError(t, err)
+
+	// Both should return results
+	assert.True(t, len(resDefault) > 0)
+	assert.True(t, len(resChrFreq) > 0)
 }
 
 func TestMorphset(t *testing.T) {
 	kiwi := New("./base", WithNumThread(1))
 	defer kiwi.Close()
 
-	ms := kiwi.NewMorphset()
+	ms, err := kiwi.NewMorphset()
+	assert.NoError(t, err)
 	defer ms.Close()
 
+	// Add a morpheme to blocklist
+	added, err := ms.Add("아버지", "NNG")
+	assert.NoError(t, err)
+	assert.True(t, added > 0)
+
+	// Analyze with blocklist - "아버지" should be blocked
 	res, err := kiwi.Analyze("아버지가 방에 들어가신다", WithBlocklist(ms))
 	assert.NoError(t, err)
 	assert.True(t, len(res) > 0)
+
+	// Verify the blocked morpheme is not in the result
+	for _, token := range res[0].Tokens {
+		assert.NotEqual(t, "아버지", token.Form)
+	}
 }
