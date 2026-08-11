@@ -23,3 +23,6 @@ models/
 include/
 ModelGenerator/
 
+
+# Python virtual environment
+.venv/
