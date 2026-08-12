@@ -72,17 +72,23 @@ const (
 	POS_USER4     POSType = "USER4"
 	POS_P         POSType = "P"
 	POS_PV        POSType = "P"
-	POS_PA        POSType = "@"
 	POS_VV_I      POSType = "VV-I"
 	POS_VA_I      POSType = "VA-I"
 	POS_VX_I      POSType = "VX-I"
 	POS_XSA_I     POSType = "XSA-I"
-	POS_PV_I      POSType = "@"
-	POS_PA_I      POSType = "@"
 	POS_VV_R      POSType = "VV-R"
 	POS_VA_R      POSType = "VA-R"
 	POS_VX_R      POSType = "VX-R"
 	POS_XSA_R     POSType = "XSA-R"
+
+	// Accepted by toPOSTag but never produced by Kiwi itself.
+	POS_NF    POSType = "NF"
+	POS_NV    POSType = "NV"
+	POS_NA    POSType = "NA"
+	POS_UNK   POSType = "UNK"
+	POS_V     POSType = "V"
+	POS_A     POSType = "A"
+	POS_CARET POSType = "^"
 )
 
 // Deprecated: these aliases are kept for backwards compatibility.
@@ -158,7 +164,6 @@ func (p POSType) isValid() bool {
 		POS_USER3,
 		POS_USER4,
 		POS_P,
-		POS_PA,
 		POS_VV_I,
 		POS_VA_I,
 		POS_VX_I,
@@ -166,7 +171,14 @@ func (p POSType) isValid() bool {
 		POS_VV_R,
 		POS_VA_R,
 		POS_VX_R,
-		POS_XSA_R:
+		POS_XSA_R,
+		POS_NF,
+		POS_NV,
+		POS_NA,
+		POS_UNK,
+		POS_V,
+		POS_A,
+		POS_CARET:
 		return true
 	default:
 		return false
