@@ -25,18 +25,27 @@ format:
 	# go install mvdan.cc/gofumpt@latest
 	gofumpt -l -w .
 
+VENV := .venv
+VENV_PYTHON := $(VENV)/bin/python
+
+# `source` is not available under /bin/sh on Debian-family systems, so the
+# venv interpreter is invoked directly instead of activating the venv.
+$(VENV_PYTHON):
+	python3 -m venv $(VENV)
+	$(VENV)/bin/pip install --quiet tree-sitter tree-sitter-cpp
+
 .PHONY: sync-postypes
-sync-postypes:
+sync-postypes: $(VENV_PYTHON)
 	@echo "Extracting POS tags from Kiwi $(KIWI_VERSION)..."
-	source .venv/bin/activate && python scripts/extract_postags.py $(KIWI_VERSION)
+	$(VENV_PYTHON) scripts/extract_postags.py $(KIWI_VERSION)
 	@echo "Generated postype_generated.go"
 	@echo "Comparing with current postype.go..."
 	@diff -u postype.go postype_generated.go || true
 	@echo "To apply changes, run: mv postype_generated.go postype.go"
 
 .PHONY: check-postypes
-check-postypes:
-	@source .venv/bin/activate && python scripts/extract_postags.py $(KIWI_VERSION)
+check-postypes: $(VENV_PYTHON)
+	@$(VENV_PYTHON) scripts/extract_postags.py $(KIWI_VERSION)
 	@if diff -q postype.go postype_generated.go > /dev/null 2>&1; then \
 		echo "POS types are in sync with Kiwi $(KIWI_VERSION)"; \
 	else \

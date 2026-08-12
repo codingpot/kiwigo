@@ -2,9 +2,15 @@
 """
 Extract POS tags from Kiwi C++ source code using tree-sitter.
 
-This script parses the Kiwi C++ header file (Types.h) to extract
-POSTag enum definitions and generates a Go file with the corresponding
+This script parses the Kiwi C++ sources to extract the POSTag enum and the
+tag<->string conversion tables, then generates a Go file with the corresponding
 POS type constants.
+
+The mapping is derived rather than guessed: enum values are evaluated the way
+the C++ compiler evaluates them (including aliases such as `pv = p` and
+`pa = p + 1`), and the resulting numeric value is fed through a Python
+transcription of `tagToString`. Tags that only `tagRToString` can produce
+(the regular-conjugation `-R` variants) are parsed from that function.
 
 Usage:
     python scripts/extract_postags.py [version]
@@ -13,6 +19,7 @@ Example:
     python scripts/extract_postags.py v0.23.2
 """
 
+import re
 import sys
 import urllib.request
 from pathlib import Path
@@ -26,6 +33,26 @@ CPP_LANGUAGE = Language(tscpp.language())
 # GitHub raw content URL template
 KIWI_TYPES_H_URL = "https://raw.githubusercontent.com/bab2min/Kiwi/{version}/include/kiwi/Types.h"
 KIWI_UTILS_CPP_URL = "https://raw.githubusercontent.com/bab2min/Kiwi/{version}/src/Utils.cpp"
+
+# Enumerators that are not POS tags themselves.
+SKIPPED_ENUMERATORS = {
+    "max",  # size marker
+    "irregular",  # bit flag
+    "unknown_feat_ha",  # internal use
+}
+
+# Bases whose `<base>i` spelling maps to a POS_<BASE>_I constant.
+IRREGULAR_BASES = ("vv", "va", "vx", "xsa", "pv", "pa")
+
+# Backwards-compatible aliases kept for downstream code. These cannot be derived
+# from the C++ source; they exist because kiwigo used to spell them this way.
+COMPAT_ALIASES = [
+    ("POS_USER_0", "POS_USER0"),
+    ("POS_USER_1", "POS_USER1"),
+    ("POS_USER_2", "POS_USER2"),
+    ("POS_USER_3", "POS_USER3"),
+    ("POS_USER_4", "POS_USER4"),
+]
 
 
 def fetch_file(url: str) -> str:
@@ -66,62 +93,135 @@ def extract_enum_values(source: str, enum_name: str) -> list[dict]:
     return results
 
 
-def extract_tag_strings(source: str) -> list[str]:
-    """Extract tag string array from Utils.cpp using regex."""
-    import re
+def resolve_enum_values(tags: list[dict]) -> dict[str, int]:
+    """Evaluate C++ enumerator initializers to their numeric values.
 
-    # Find the tags array in tagToString function
-    # Pattern: static const char* tags[] = { "TAG1", "TAG2", ... }
-    pattern = r'static\s+const\s+char\s*\*\s*tags\s*\[\]\s*=\s*\{([^}]+)\}'
-    match = re.search(pattern, source, re.DOTALL)
+    Follows C++ rules: an enumerator without an initializer is the previous
+    value plus one, and an initializer may reference earlier enumerators.
+    """
+    resolved: dict[str, int] = {}
+    previous = -1
+
+    for tag in tags:
+        expr = tag["value"]
+        if expr is None:
+            value = previous + 1
+        else:
+            # Initializers in POSTag only use earlier enumerators, integer
+            # literals and the `+` / `|` operators.
+            if not re.fullmatch(r"[\w\s+|()x0-9A-Fa-f]+", expr):
+                raise ValueError(f"unsupported enumerator initializer: {expr!r}")
+            value = eval(expr, {"__builtins__": {}}, dict(resolved))  # noqa: S307
+
+        resolved[tag["name"]] = value
+        previous = value
+
+    return resolved
+
+
+def extract_function_body(source: str, signature: str) -> str:
+    """Return the brace-delimited body of the first function matching `signature`."""
+    match = re.search(signature, source)
+    if not match:
+        return ""
+
+    start = source.find("{", match.end())
+    if start == -1:
+        return ""
+
+    depth = 0
+    for i in range(start, len(source)):
+        if source[i] == "{":
+            depth += 1
+        elif source[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return source[start : i + 1]
+    return ""
+
+
+def extract_tag_strings(body: str) -> list[str]:
+    """Extract the `tags[]` string table from a tagToString-like function body."""
+    pattern = r"static\s+const\s+char\s*\*\s*tags\s*\[\]\s*=\s*\{([^}]+)\}"
+    match = re.search(pattern, body, re.DOTALL)
 
     if not match:
         return []
 
-    # Extract strings from the array
-    content = match.group(1)
-    string_pattern = r'"([^"]+)"'
-    return re.findall(string_pattern, content)
+    return re.findall(r'"([^"]+)"', match.group(1))
 
 
-def map_cpp_to_go_tag(cpp_name: str, tag_string: str) -> tuple[str, str]:
-    """Map C++ enum name to Go constant name and string value."""
-    # Special cases
-    special_mappings = {
-        "unknown": ("POS_UNKNOWN", "UN"),
-        "irregular": None,  # Skip - this is a flag, not a POS tag
-        "max": None,  # Skip - this is a size marker
-        "p": ("POS_P", "P"),
-        "pv": ("POS_PV", "P"),  # alias for p
-        "pa": ("POS_PA", "P"),  # p + 1
-        "unknown_feat_ha": None,  # Skip - internal use
-    }
-
-    if cpp_name in special_mappings:
-        return special_mappings[cpp_name]
-
-    # Handle irregular variants (vvi, vai, vxi, xsai, pvi, pai)
-    if cpp_name.endswith("i") and len(cpp_name) > 2:
-        base = cpp_name[:-1]
-        if base in ("vv", "va", "vx", "xsa", "pv", "pa"):
-            go_name = f"POS_{base.upper()}_I"
-            go_value = f"{base.upper()}-I"
-            return (go_name, go_value)
-
-    # Default mapping: uppercase and add POS_ prefix
-    go_name = f"POS_{cpp_name.upper()}"
-    go_value = tag_string if tag_string else cpp_name.upper()
-
-    return (go_name, go_value)
+def extract_case_returns(body: str) -> dict[str, str]:
+    """Extract `case POSTag::x: return "Y";` pairs from a function body."""
+    pattern = r'case\s+POSTag::(\w+)\s*:\s*return\s+"([^"]*)"'
+    return dict(re.findall(pattern, body))
 
 
-def generate_go_file(tags: list[dict], tag_strings: list[str], version: str) -> str:
+def make_tag_to_string(tag_strings: list[str], irregular_cases: dict[str, str],
+                       values: dict[str, int], irregular_flag: int):
+    """Build a Python transcription of the C++ `tagToString`."""
+    # Map the numeric value of each irregular case label to its return string.
+    irregular_by_value = {values[name]: text for name, text in irregular_cases.items()}
+    default_irregular = "@"
+
+    def tag_to_string(value: int) -> str | None:
+        if value & irregular_flag:
+            cleared = value & ~irregular_flag
+            return irregular_by_value.get(cleared, default_irregular)
+        if value >= len(tag_strings):
+            return None
+        return tag_strings[value]
+
+    return tag_to_string
+
+
+def go_constant_name(cpp_name: str) -> str:
+    """Map a C++ enumerator name to its Go constant name."""
+    if cpp_name == "unknown":
+        return "POS_UNKNOWN"
+
+    if cpp_name.endswith("i") and cpp_name[:-1] in IRREGULAR_BASES:
+        return f"POS_{cpp_name[:-1].upper()}_I"
+
+    return f"POS_{cpp_name.upper()}"
+
+
+def build_tag_entries(tags: list[dict], values: dict[str, int], tag_to_string,
+                      regular_cases: dict[str, str]) -> list[tuple[str, str]]:
+    """Build the ordered (go_name, go_value) list for the generated constants."""
+    entries: list[tuple[str, str]] = []
+    seen_names: set[str] = set()
+
+    for tag in tags:
+        cpp_name = tag["name"]
+        if cpp_name in SKIPPED_ENUMERATORS:
+            continue
+
+        go_value = tag_to_string(values[cpp_name])
+        if go_value is None:
+            continue
+
+        go_name = go_constant_name(cpp_name)
+        if go_name in seen_names:
+            continue
+
+        seen_names.add(go_name)
+        entries.append((go_name, go_value))
+
+    # `-R` variants are only reachable through tagRToString, so they are not
+    # derivable from the enum alone.
+    for cpp_name, text in regular_cases.items():
+        go_name = f"POS_{cpp_name.upper()}_R"
+        if go_name in seen_names:
+            continue
+        seen_names.add(go_name)
+        entries.append((go_name, text))
+
+    return entries
+
+
+def generate_go_file(entries: list[tuple[str, str]], version: str) -> str:
     """Generate Go source file with POS type definitions."""
-    # Build tag string lookup
-    string_lookup = {}
-    for i, s in enumerate(tag_strings):
-        string_lookup[i] = s
-
     lines = []
     lines.append("// Code generated by scripts/extract_postags.py; DO NOT EDIT.")
     lines.append(f"// Source: Kiwi {version}")
@@ -136,50 +236,37 @@ def generate_go_file(tags: list[dict], tag_strings: list[str], version: str) -> 
     lines.append("")
     lines.append("const (")
 
-    # Track which tags we've added and collect for alignment
-    added_tags = set()
-    tag_entries = []
+    max_name_len = max(len(name) for name, _ in entries)
 
-    for i, tag in enumerate(tags):
-        cpp_name = tag["name"]
-        tag_string = string_lookup.get(i, cpp_name.upper())
-
-        result = map_cpp_to_go_tag(cpp_name, tag_string)
-        if result is None:
-            continue
-
-        go_name, go_value = result
-        if go_name in added_tags:
-            continue
-
-        added_tags.add(go_name)
-        tag_entries.append((go_name, go_value))
-
-    # Calculate max name length for alignment
-    max_name_len = max(len(name) for name, _ in tag_entries)
-
-    # Generate aligned output
-    for go_name, go_value in tag_entries:
+    for go_name, go_value in entries:
         padding = " " * (max_name_len - len(go_name) + 1)
         lines.append(f'\t{go_name}{padding}POSType = "{go_value}"')
 
     lines.append(")")
     lines.append("")
 
-    # Generate isValid function
+    # Backwards-compatible aliases.
+    lines.append("// Deprecated: these aliases are kept for backwards compatibility.")
+    lines.append("const (")
+    alias_len = max(len(old) for old, _ in COMPAT_ALIASES)
+    for old_name, new_name in COMPAT_ALIASES:
+        padding = " " * (alias_len - len(old_name) + 1)
+        lines.append(f"\t{old_name}{padding}= {new_name}")
+    lines.append(")")
+    lines.append("")
+
+    # Generate isValid function. A Go switch requires distinct case values, and
+    # several constants are aliases sharing one string, so deduplicate by value.
     lines.append("func (p POSType) isValid() bool {")
     lines.append("\tswitch p {")
     lines.append("\tcase")
 
     valid_tags = []
-    for tag in tags:
-        cpp_name = tag["name"]
-        result = map_cpp_to_go_tag(cpp_name, "")
-        if result is None:
+    seen_values: set[str] = set()
+    for go_name, go_value in entries:
+        if go_value in seen_values:
             continue
-        go_name = result[0]
-        if go_name not in added_tags:
-            continue
+        seen_values.add(go_value)
         valid_tags.append(go_name)
 
     lines.append(",\n".join(f"\t\t{tag}" for tag in valid_tags) + ":")
@@ -200,7 +287,7 @@ def generate_go_file(tags: list[dict], tag_strings: list[str], version: str) -> 
     lines.append("\treturn pos, nil")
     lines.append("}")
 
-    return "\n".join(lines)
+    return "\n".join(lines) + "\n"
 
 
 def main():
@@ -223,13 +310,29 @@ def main():
     tags = extract_enum_values(types_source, "POSTag")
     print(f"Found {len(tags)} enum values")
 
-    # Extract tag strings
+    values = resolve_enum_values(tags)
+    if "irregular" not in values:
+        raise SystemExit("POSTag::irregular not found; cannot decode irregular tags")
+
+    # Extract the conversion tables.
     print("Parsing tag strings...")
-    tag_strings = extract_tag_strings(utils_source)
+    tag_to_string_body = extract_function_body(utils_source, r"const\s+char\s*\*\s*tagToString\s*\(")
+    tag_strings = extract_tag_strings(tag_to_string_body)
+    if not tag_strings:
+        raise SystemExit("tagToString tag table not found")
     print(f"Found {len(tag_strings)} tag strings")
 
+    irregular_cases = extract_case_returns(tag_to_string_body)
+
+    tag_r_to_string_body = extract_function_body(utils_source, r"const\s+char\s*\*\s*tagRToString\s*\(")
+    regular_cases = extract_case_returns(tag_r_to_string_body)
+    print(f"Found {len(regular_cases)} regular-conjugation tags")
+
+    tag_to_string = make_tag_to_string(tag_strings, irregular_cases, values, values["irregular"])
+    entries = build_tag_entries(tags, values, tag_to_string, regular_cases)
+
     # Generate Go file
-    go_content = generate_go_file(tags, tag_strings, version)
+    go_content = generate_go_file(entries, version)
 
     # Write output
     output_path = Path("postype_generated.go")
@@ -238,13 +341,15 @@ def main():
 
     # Print summary
     print("\nExtracted tags:")
-    for i, tag in enumerate(tags):
-        tag_str = tag_strings[i] if i < len(tag_strings) else "?"
-        result = map_cpp_to_go_tag(tag["name"], tag_str)
-        if result:
-            print(f"  {tag['name']:20s} -> {result[0]:20s} = \"{result[1]}\"")
-        else:
-            print(f"  {tag['name']:20s} -> (skipped)")
+    for tag in tags:
+        cpp_name = tag["name"]
+        if cpp_name in SKIPPED_ENUMERATORS:
+            print(f"  {cpp_name:20s} -> (skipped)")
+            continue
+        text = tag_to_string(values[cpp_name])
+        print(f'  {cpp_name:20s} -> {go_constant_name(cpp_name):20s} = "{text}"')
+    for cpp_name, text in regular_cases.items():
+        print(f'  {cpp_name + " (R)":20s} -> {"POS_" + cpp_name.upper() + "_R":20s} = "{text}"')
 
 
 if __name__ == "__main__":

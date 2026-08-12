@@ -41,13 +41,13 @@ jobs:
         id: get_version
         run: |
           if [ -n "${{ github.event.inputs.kiwi_version }}" ]; then
-            echo "version=${{ github.event.inputs.kiwi_version }}" >> $GITHUB_OUTPUT
+            VERSION="${{ github.event.inputs.kiwi_version }}"
           else
             # Get latest release from GitHub API
             VERSION=$(curl -s https://api.github.com/repos/bab2min/Kiwi/releases/latest | jq -r '.tag_name')
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
           fi
-          echo "Kiwi version: $(cat $GITHUB_OUTPUT | grep version | cut -d= -f2)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Kiwi version: $VERSION"
 
       - name: Extract POS tags
         id: extract
@@ -88,6 +88,15 @@ jobs:
 
           # Update Makefile version
           sed -i "s/KIWI_VERSION := .*/KIWI_VERSION := ${{ steps.get_version.outputs.version }}/" Makefile
+
+      # PRs opened with GITHUB_TOKEN do not trigger CI, so the generated code is
+      # verified here instead. Without this a non-compiling postype.go can be
+      # proposed and merged unnoticed.
+      - name: Verify generated code
+        if: steps.extract.outputs.changed == 'true'
+        run: |
+          make install-kiwi
+          make test
 
       - name: Create Pull Request
         if: steps.extract.outputs.changed == 'true'
