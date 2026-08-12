@@ -72,13 +72,26 @@ const (
 	POS_USER4     POSType = "USER4"
 	POS_P         POSType = "P"
 	POS_PV        POSType = "P"
-	POS_PA        POSType = "P"
+	POS_PA        POSType = "@"
 	POS_VV_I      POSType = "VV-I"
 	POS_VA_I      POSType = "VA-I"
 	POS_VX_I      POSType = "VX-I"
 	POS_XSA_I     POSType = "XSA-I"
-	POS_PV_I      POSType = "PV-I"
-	POS_PA_I      POSType = "PA-I"
+	POS_PV_I      POSType = "@"
+	POS_PA_I      POSType = "@"
+	POS_VV_R      POSType = "VV-R"
+	POS_VA_R      POSType = "VA-R"
+	POS_VX_R      POSType = "VX-R"
+	POS_XSA_R     POSType = "XSA-R"
+)
+
+// Deprecated: these aliases are kept for backwards compatibility.
+const (
+	POS_USER_0 = POS_USER0
+	POS_USER_1 = POS_USER1
+	POS_USER_2 = POS_USER2
+	POS_USER_3 = POS_USER3
+	POS_USER_4 = POS_USER4
 )
 
 func (p POSType) isValid() bool {
@@ -145,14 +158,15 @@ func (p POSType) isValid() bool {
 		POS_USER3,
 		POS_USER4,
 		POS_P,
-		POS_PV,
 		POS_PA,
 		POS_VV_I,
 		POS_VA_I,
 		POS_VX_I,
 		POS_XSA_I,
-		POS_PV_I,
-		POS_PA_I:
+		POS_VV_R,
+		POS_VA_R,
+		POS_VX_R,
+		POS_XSA_R:
 		return true
 	default:
 		return false
