@@ -45,11 +45,26 @@ func TestParsePOSType(t *testing.T) {
 			want:    POS_VV_I,
 			wantErr: false,
 		},
+		// toPOSTag accepts these as input even though Kiwi never emits them.
 		{
-			name:    "@ is a POSType",
-			arg:     "@",
-			want:    POS_PA,
+			name:    "V is a POSType",
+			arg:     "V",
+			want:    POS_V,
 			wantErr: false,
+		},
+		{
+			name:    "UNK is a POSType",
+			arg:     "UNK",
+			want:    POS_UNK,
+			wantErr: false,
+		},
+		// toPOSTag has no entry for "@"; it is the sentinel tagToString falls
+		// back to for values it is never meant to be called with.
+		{
+			name:    "@ is not a valid POSType",
+			arg:     "@",
+			want:    POS_UNKNOWN,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
